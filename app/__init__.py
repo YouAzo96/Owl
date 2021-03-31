@@ -2,6 +2,7 @@ from flask import Flask
 
 # New imports
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import create_engine
 from dotenv import load_dotenv
 import os
 
@@ -21,7 +22,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = ('mysql+pymysql://'
                                         + USERNAME
                                         + ':'
                                         + PASSWORD
-                                        + '@localhost/'
+                                        + '@db4free.net/'
                                         + DB_NAME)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"]= True
 

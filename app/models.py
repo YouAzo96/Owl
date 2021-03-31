@@ -79,8 +79,8 @@ class IntrestGroup(db.Model):
 class Post(db.Model):
     __tablename__='post'
     post_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column (db.Integer, sqlalchemy.ForeignKey ('member.user_id'), nullable=False)
-    group_id = db.Column(db.Integer, sqlalchemy.ForeignKey ('intrestGroup.group_id'), nullable=False)
+    user_id = db.Column (db.Integer, sqlalchemy.ForeignKey ('user.user_id'), nullable=False)
+    group_id = db.Column(db.Integer, sqlalchemy.ForeignKey ('intrestgroup.group_id'), nullable=False)
     content = db.Column(db.String(100), unique=True)
     timestamp = db.Column(db.DateTime,nullable=False,default=datetime.now())
 
