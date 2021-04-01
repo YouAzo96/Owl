@@ -58,10 +58,15 @@ def add_user():
     form = AddUser()
     if form.validate_on_submit():
         # Extract values from form
-        user_data = form.user.data
-       
+        username = form.user.data
+        firstname = form.first_name.data
+        lastname = form.last_name.data
+        email = form.email.data
+        address = form.address.data
+        gender = form.gender.data
+        password= form.password.data
         # Create a city record to store in the DB
-        u = User(user_id=user_data)
+        u = User(user_id=username,first_name=firstname, last_name=lastname,email=email,address=address,gender=gender,password=password )
 
         # add record to table and commit changes
         db.session.add(u)
