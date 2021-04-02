@@ -29,26 +29,26 @@ def login():
              print('Login successful', file=sys.stderr)
              return redirect(url_for('view'))
         else:
-        return render_template('unauthorized_user.html', form=form)
+            return render_template('unauthorized_user.html', form=form)
     return render_template('login.html', form=form)
 
 
 @app.route('/logout')
 def logout():
     logout_user()
-    return redirect(url_for('index'))
+        return redirect(url_for('index'))
 
-def is_admin():
+#def is_admin():
     '''
-    Helper function to determine if authenticated user is an admin.
+   # Helper function to determine if authenticated user is an admin.
     '''
-    if current_user:
-        if current_user.type == 'admin':   #Elvis Edit changed from user.role to user.type may have to switch back
-            return True
-        else:
-            return False
-    else:
-        print('User not authenticated.', file=sys.stderr)
+    #if current_user:
+        #if current_user.type == 'admin':   #Elvis Edit changed from user.role to user.type may have to switch back
+       #     return True
+        #else:
+           # return False
+   # else:
+    #    print('User not authenticated.', file=sys.stderr)
 
 
 @app.route('/add', methods=['GET', 'POST'])
@@ -74,7 +74,7 @@ def add_user():
 
         form.user.data = ''
         return redirect(url_for('add_user'))
-    return redirect(url_for('index'))
+    return redirect(url_for('login'))
 
 
 
