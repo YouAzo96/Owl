@@ -19,8 +19,7 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         # Query DB for user by username
-        user = db.session.query(User).filter_by(user_id=form.username.data).first()
-        active = db.session.query(User).filter_by(active) # WILL NEED TO FURTHER INQUIRE TO SEE FUNCTIONALITY
+        user = db.session.query(User).filter_by(email=form.email.data).first()
         if active:
              if user is None or not user.check_password(form.password.data):
                  print('Login failed', file=sys.stderr)
