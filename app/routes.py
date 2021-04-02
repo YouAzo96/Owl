@@ -109,6 +109,6 @@ def access_record():
 @app.route('/view_profilepage')
 def view():
     print(all, file=sys.stderr)
-    return render_template('profilepage.html', cities=all)
+    return render_template('profilepage.html')
 
 
