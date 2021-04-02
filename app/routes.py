@@ -58,13 +58,14 @@ def add_user():
     form = AddUser()
     if form.validate_on_submit():
         # Extract values from form
-        username = form.user.data
         firstname = form.first_name.data
         lastname = form.last_name.data
         email = form.email.data
         address = form.address.data
         gender = form.gender.data
+        major_id= form.major_id.data
         password= form.password.data
+        
         # Create a  record to store in the DB
         u = User(user_id=username,first_name=firstname, last_name=lastname,email=email,address=address,gender=gender,password=password )
 
@@ -74,9 +75,9 @@ def add_user():
 
         form.user.data = ''
         return redirect(url_for('add_user'))
-    return render_template('adduser.html', form=form)
+    return redirect(url_for('index'))
 
-n
+
 @app.route('/block_access', methods=['GET', 'POST'])
 @login_required
 def access_record():
@@ -87,17 +88,17 @@ def access_record():
             # Extract Values from form
             user_toblock = form.user_id.data
            # search for user
-           block =  db.session.query(User).filter_by(user_id = form.user.data).first()
+            block =  db.session.query(User).filter_by(user_id = form.user.data).first()
             # create record to store in database
-            b =User(active='FALSE')
+            
             # If record is found delete from DB table and commit changes
             if block is not None:
                 db.session.add(b)
                 db.session.commit()
 
             # Redirect to the view_all route (view function)
-            return redirect(url_for('view')                       #Elvis REMINDER CHANGE TO HOMPAGE
-        return render_template('selectuser.html', form=form)
+        return redirect(url_for('view')                       #Elvis REMINDER CHANGE TO HOMPAGE
+    return render_template('selectuser.html', form=form)
     # Tell non-admin user they're not authorized to access route.
     else:
         return render_template('unauthorized.html')
