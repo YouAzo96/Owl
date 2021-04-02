@@ -12,12 +12,8 @@ class AddUser(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Save')
 
-class SelectUserForm(FlaskForm):
-    user = StringField('Username:', validators=[DataRequired()])
-    submit = SubmitField('Block')
-
 
 class LoginForm(FlaskForm):
-    user = TextField('Username', validators=[DataRequired()])
+    email = TextField('email', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Sign In')
