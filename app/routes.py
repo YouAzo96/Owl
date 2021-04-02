@@ -77,32 +77,6 @@ def add_user():
     return redirect(url_for('index'))
 
 
-@app.route('/block_access', methods=['GET', 'POST'])
-@login_required
-def access_record():
-    # Verifying that user is an admin
-    if is_admin():
-        form = SelectUserForm()
-        if form.validate_on_submit():
-            # Extract Values from form
-            user_toblock = form.user_id.data
-           # search for user
-            block =  db.session.query(User).filter_by(user_id = form.user.data).first()
-            # create record to store in database
-            
-            # If record is found delete from DB table and commit changes
-            if block is not None:
-                db.session.add(b)
-                db.session.commit()
-
-            # Redirect to the view_all route (view function)
-        return redirect(url_for('view')                       #Elvis REMINDER CHANGE TO HOMPAGE
-    return render_template('selectuser.html', form=form)
-    # Tell non-admin user they're not authorized to access route.
-    else:
-        return render_template('unauthorized.html')
-
-
 
 
 
