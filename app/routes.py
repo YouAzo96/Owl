@@ -3,7 +3,7 @@ from flask import render_template, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from app.forms import AddUser, SelectUserForm, LoginForm
 from app import db
-from app.models import City, User
+from app.models import User
 import sys
 
 @app.route('/')
@@ -52,7 +52,7 @@ def is_admin():
         print('User not authenticated.', file=sys.stderr)
 
 
-oute('/add', methods=['GET', 'POST'])
+@app.route('/add', methods=['GET', 'POST'])
 @login_required
 def add_user():
     form = AddUser()
@@ -65,7 +65,7 @@ def add_user():
         address = form.address.data
         gender = form.gender.data
         password= form.password.data
-        # Create a city record to store in the DB
+        # Create a  record to store in the DB
         u = User(user_id=username,first_name=firstname, last_name=lastname,email=email,address=address,gender=gender,password=password )
 
         # add record to table and commit changes
@@ -76,7 +76,7 @@ def add_user():
         return redirect(url_for('add_user'))
     return render_template('adduser.html', form=form)
 
-# Adding a city requires that a user be logged in AND is an admin
+n
 @app.route('/block_access', methods=['GET', 'POST'])
 @login_required
 def access_record():
@@ -85,11 +85,11 @@ def access_record():
         form = SelectUserForm()
         if form.validate_on_submit():
             # Extract Values from form
-            user_toblock = form.user.data
+            user_toblock = form.user_id.data
            # search for user
            block =  db.session.query(User).filter_by(user_id = form.user.data).first()
             # create record to store in database
-            b =User(active=FALSE)
+            b =User(active='FALSE')
             # If record is found delete from DB table and commit changes
             if block is not None:
                 db.session.add(b)
@@ -106,10 +106,9 @@ def access_record():
 
 
 
-@app.route('/view_all')
+@app.route('/view_profilepage')
 def view():
-    all = db.session.query(City).all()
     print(all, file=sys.stderr)
-    return render_template('view_cities.html', cities=all)
+    return render_template('profilepage.html', cities=all)
 
 
