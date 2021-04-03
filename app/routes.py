@@ -78,7 +78,7 @@ def signup():
         flash('You are now a registered user')
 
         form.user.data = ''
-        return redirect(url_for('login'))
+        return redirect(url_for('index'))
     return render_template('register.html', title='SignUp', form=form)
 
 
