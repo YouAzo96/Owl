@@ -1,0 +1,30 @@
+<html>
+    <head>
+      <style>
+        table, th, td {
+          border: 1px solid black;
+          border-collapse: collapse;
+        }
+        th, td {
+          padding: 5px;
+        }
+        th {
+          text-align: left;
+        }
+        </style>
+        <title>City population app</title>
+    </head>
+
+    <body>
+        <h1 style=color:red>Populations of cities </h1>
+        <hr>
+        <div>
+          <a href="/login">Login</a>
+          <a href="/logout">Logout</a>
+		  <a href="/signup">Register</a>
+         
+        </div>
+        <hr>
+        {% block content %}{% endblock %}
+    </body>
+</html>
