@@ -1,12 +1,13 @@
 from app import app
 from flask import render_template, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required, current_user
-from app.forms import AddUser, SelectUserForm, LoginForm
+from app.forms import RegistrationForm,  LoginForm
 from app import db
 from app.models import User
 import sys
 
 @app.route('/')
+@login_required
 def index():
     return render_template('homepage.html')
 
@@ -19,15 +20,15 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         # Query DB for user by username
-        user = db.session.query(User).filter_by(email=form.email.data).first()
-        if active:
-             if user is None or not user.check_password(form.password.data):
-                 print('Login failed', file=sys.stderr)
-                 return redirect(url_for('login'))
-             # login_user is a flask_login function that starts a session
-             login_user(user)
-             print('Login successful', file=sys.stderr)
-             return redirect(url_for('view'))
+        user = db.session.query(User).filter_by(email=form.email.data)
+        if user.active:
+            if user is None or not user.check_password(form.password.data):
+                print('Login failed', file=sys.stderr)
+                flash('Invalid usernamed or password')
+                return redirect(url_for('login'))
+            login_user(user)
+            print('Login successful', file=sys.stderr)
+            return redirect(url_for('index'))
         else:
             return render_template('unauthorized_user.html', form=form)
     return render_template('login.html', form=form)
@@ -36,7 +37,7 @@ def login():
 @app.route('/logout')
 def logout():
     logout_user()
-        return redirect(url_for('index'))
+    return redirect(url_for('index'))
 
 #def is_admin():
     '''
@@ -51,30 +52,34 @@ def logout():
     #    print('User not authenticated.', file=sys.stderr)
 
 
-@app.route('/add', methods=['GET', 'POST'])
-@login_required
-def add_user():
-    form = AddUser()
+@app.route('/sign_up', methods=['GET', 'POST'])
+def signup():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = RegistrationForm()
     if form.validate_on_submit():
         # Extract values from form
+       # user = User(first_name=form.first_name.data,last_name=form.last_name.data,email=form.email.data,address=form.address.data,gender=form.gender.data)
+       # user.set_password(form.password.data)
         firstname = form.first_name.data
         lastname = form.last_name.data
         email = form.email.data
         address = form.address.data
         gender = form.gender.data
-        major_id= form.major_id.data
+       # major_id= form.major_id.data
         password= form.password.data
         
         # Create a  record to store in the DB
-        u = User(user_id=username,first_name=firstname, last_name=lastname,email=email,address=address,gender=gender,password=password )
+        u = User(first_name=firstname, last_name=lastname,email=email,address=address,gender=gender,password=password )
 
         # add record to table and commit changes
         db.session.add(u)
         db.session.commit()
+        flash('You are now a registered user')
 
         form.user.data = ''
-        return redirect(url_for('add_user'))
-    return redirect(url_for('login'))
+        return redirect(url_for('login'))
+    return render_template('register.html', title='SignUp', form=form)
 
 
 
