@@ -6,6 +6,6 @@ from app import db
 import sys
 
 @app.route('/')
-def hello():
+def index():
     return render_template('index.html',isAdmin=False)
 
