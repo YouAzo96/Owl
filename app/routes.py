@@ -6,9 +6,7 @@ from sqlalchemy import update
 from app.models import User, Reports
 import sys
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+
 
 @app.route('/admin')
 @login_required
