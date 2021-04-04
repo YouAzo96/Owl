@@ -1,6 +1,5 @@
 from app import app
 from flask import render_template, redirect, url_for
-from app import db
 from app.forms import AddAnnouncement
 from app.models import Announcement
 from flask_login import current_user, login_required
