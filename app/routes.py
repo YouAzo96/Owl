@@ -1,12 +1,13 @@
 from app import app
 from flask import render_template, redirect, url_for
 from app.forms import BanForm
+from app.models import User, Reports
 from app import db
 from sqlalchemy import update
-from app.models import User, Reports
 import sys
-
-
+@app.route('/', methods=['GET','POST'])
+def index():
+     return render_template('index.html')
 
 @app.route('/admin')
 @login_required
