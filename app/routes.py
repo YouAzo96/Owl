@@ -7,5 +7,5 @@ import sys
 
 @app.route('/')
 def hello():
-    return render_template('index.html')
+    return render_template('index.html',isAdmin=False)
 
