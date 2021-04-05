@@ -28,7 +28,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = ('mysql+pymysql://'
                                         + DB_NAME)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"]= True
 
-<<<<<<< HEAD
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER=os.path.join(APP_ROOT, 'static', 'images')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
