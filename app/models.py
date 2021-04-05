@@ -9,15 +9,15 @@ class User (UserMixin, db.Model):
     user_id = db.Column(db.Integer , primary_key=True)
     first_name =db.Column (db.String (100))
     last_name = db.Column (db.String (100))
-    user_type = db.Column (db.String (5))
+    user_type = db.Column (db.String (5),default="user")
     email = db.Column (db.String(100), unique=True)
     major_id = db.Column (db.Integer, sqlalchemy.ForeignKey('major.major_id'))
-    address = db.Column (db.String (150))
+    address = db.Column (db.String (150),nullable=True)
     gender = db.Column (db.String (10))
-    active = db.Column (db.Boolean)
+    image= db.Column(db.String(50),nullable=True)
+    active = db.Column (db.Boolean, default='1')
     password_hash = db.Column(db.String(256))
- 
-    
+
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
     def check_password (self, password):
@@ -38,7 +38,8 @@ class Announcement(db.Model):
     __tablename__='announcement'
     announcement_id = db.Column(db.Integer, primary_key=True)
     admin_id = db.Column (db.Integer, sqlalchemy.ForeignKey('user.user_id'))
-    description = db.Column (db.String (100), unique=True)
+    description = db.Column (db.String (100))
+    flag = db.Column(db.String(20))
     timestamp = db.Column(db.DateTime,nullable=False,default=datetime.now())
 
 class Rating(db.Model):
@@ -62,8 +63,9 @@ class Major (db.Model):
 
 class User_Intrest(db.Model):
     __tablename__='user_intrest'
-    user_id = db.Column(db.Integer ,sqlalchemy.ForeignKey('user.user_id'), primary_key=True)
-    intrest_id = db.Column(db.Integer, sqlalchemy.ForeignKey('intrest.intrest_id'),primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer ,sqlalchemy.ForeignKey('user.user_id'))
+    intrest_id = db.Column(db.Integer, sqlalchemy.ForeignKey('intrest.intrest_id'))
 
 class Intrest (db.Model):
     __tablename__='intrest'
