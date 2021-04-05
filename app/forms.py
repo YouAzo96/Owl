@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField,SelectField, IntegerField, SubmitField, TextField, PasswordField, BooleanField,FileField
+from wtforms import validators, StringField,SelectField, IntegerField,TextAreaField, SubmitField, TextField, PasswordField, BooleanField,FileField
 from wtforms.validators import DataRequired, ValidationError, Email, EqualTo
 from app.models import User, Major
 
@@ -28,3 +28,14 @@ class LoginForm(FlaskForm):
     email = TextField('Email', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Sign In')
+
+class BanForm(FlaskForm):
+    user_id = StringField('User ID: ', validators=[DataRequired()])
+    submit = SubmitField('Ban User')
+
+
+class AddAnnouncement(FlaskForm):
+    flag = SelectField('Flag: ',choices=[('Warning!','Warning!'),('Notice','Notice'),('Alert','Alert')], validators=[validators.optional()])
+    description = TextAreaField('Description: ', validators=[DataRequired(),validators.length(max=100)])
+    submit = SubmitField('Post')
+

@@ -1,4 +1,4 @@
-from app import db,login 
+from app import db,login
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
@@ -9,13 +9,13 @@ class User (UserMixin, db.Model):
     user_id = db.Column(db.Integer , primary_key=True)
     first_name =db.Column (db.String (100))
     last_name = db.Column (db.String (100))
-    user_type = db.Column (db.String (5))
+    user_type = db.Column (db.String (5),default="user")
+    address = db.Column (db.String (150),nullable=True)
+    active = db.Column (db.Boolean, default='1')
     email = db.Column (db.String(100), unique=True)
     major_id = db.Column (db.Integer, sqlalchemy.ForeignKey('major.major_id'))
-    address = db.Column (db.String (150))
     gender = db.Column (db.String (10))
     image = db.Column (db.String (50), nullable=True)
-    active = db.Column (db.Boolean)
     password_hash = db.Column(db.String(256))
  
     def get_id(self):
@@ -29,7 +29,6 @@ class User (UserMixin, db.Model):
 def loader_user(user_id):
         return db.session.query(User).get(int(user_id))
 
-
 class Ride(db.Model):
     __tablename__='ride'
     ride_id = db.Column(db.Integer, primary_key=True)
@@ -41,7 +40,8 @@ class Announcement(db.Model):
     __tablename__='announcement'
     announcement_id = db.Column(db.Integer, primary_key=True)
     admin_id = db.Column (db.Integer, sqlalchemy.ForeignKey('user.user_id'))
-    description = db.Column (db.String (100), unique=True)
+    description = db.Column (db.String (100))
+    flag = db.Column(db.String(20))
     timestamp = db.Column(db.DateTime,nullable=False,default=datetime.now())
 
 class Rating(db.Model):
@@ -65,8 +65,9 @@ class Major (db.Model):
 
 class User_Intrest(db.Model):
     __tablename__='user_intrest'
-    user_id = db.Column(db.Integer ,sqlalchemy.ForeignKey('user.user_id'), primary_key=True)
-    intrest_id = db.Column(db.Integer, sqlalchemy.ForeignKey('intrest.intrest_id'),primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer ,sqlalchemy.ForeignKey('user.user_id'))
+    intrest_id = db.Column(db.Integer, sqlalchemy.ForeignKey('intrest.intrest_id'))
 
 class Intrest (db.Model):
     __tablename__='intrest'
@@ -94,4 +95,3 @@ class Reports (db.Model):
     reporter_id = db.Column(db.Integer ,sqlalchemy.ForeignKey('user.user_id'))
     description = db.Column(db.String(100))
     status = db.Column(db.Integer)
-    #the status column is a switch that hold zero or one. when zero meaans the report has not resolved yet.
