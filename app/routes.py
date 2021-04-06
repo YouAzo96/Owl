@@ -3,6 +3,7 @@ from flask import render_template, redirect, url_for, flash,request
 from flask_login import login_user, logout_user, login_required, current_user
 from app.forms import RegistrationForm,  LoginForm,BanForm,AddAnnouncement
 from app import db
+from sqlalchemy import update
 from werkzeug.utils import secure_filename
 from app.models import User, Major, User_Intrest, Rating, Intrest,Reports,Announcement
 import sys
@@ -10,8 +11,12 @@ import os
 
 @app.route('/', methods=['GET','POST'])
 def index():
-    all_ann = db.session.query(Announcement).all()
+    all_ann = db.session.query(Announcement).order_by(Announcement.timestamp.desc()).all()
     form = AddAnnouncement()
+    if current_user and not current_user.is_anonymous:
+        user = current_user
+    else: 
+        user = ''
     if is_admin():
          if form.validate_on_submit():
              desc = form.description.data
@@ -22,12 +27,16 @@ def index():
              form.description.data=''
              form.flag.data = ''
              return redirect(url_for('index'))
-    return render_template('index.html', announcements = all_ann, form=form, isAdmin= is_admin())
+    return render_template('index.html',user=user, announcements = all_ann, form=form, isAdmin= is_admin())
     
  
 def is_admin():
-    if current_user & current_user.role == "admin":
-        return True;
+
+    if current_user.is_anonymous:
+        return False;
+        
+    elif  current_user.user_type == "admin":
+            return True;
     else: 
         return False;
 
@@ -98,12 +107,16 @@ def signup():
 @app.route('/profile/<user_id>')
 def viewprofile(user_id):
     if user_id is None:
-        user_id = current_user.user_id
-    user =db.session.query(User).filter_by(user_id=user_id).first()
-    if current_user.is_authenticated:
-        if current_user.user_id == user_id:
+        user_profile=user =db.session.query(User).filter_by(user_id=current_user.user_id).first()
+    else:
+        user_profile = db.session.query(User).filter_by(user_id=user_id).first()
+        if user_profile.active == False:
+            return (redirect(url_for('index')))
+        user = db.session.query(User).filter_by(user_id=current_user.user_id).first()
+        
+    if current_user.is_authenticated and user_id is None:
             featuresShow = True
-        else:
+    else:
             featuresShow = False
     if user is not None:
         tmp_interests_ids = db.session.query(User_Intrest.intrest_id).filter_by(user_id=user_id).all()
@@ -120,8 +133,8 @@ def viewprofile(user_id):
         if total >0:
             overall = total /len(ratings)
         else:
-            overall = "N/A"
-        return render_template('profilepage.html',isMyProfile=featuresShow,user=user,rating=overall,major=major,interests=interestNames)
+            overall = "."
+        return render_template('profilepage.html',isAdmin = is_admin(),isMyProfile=featuresShow,user=user,user_profile=user_profile,rating=overall,major=major,interests=interestNames)
     else:
         return redirect(url_for('index'))
 
@@ -134,13 +147,14 @@ def admin():
         return render_template('login.html'); 
     if not is_admin():
         return render_template('login.html');     
-    return render_template('admin.html', name=current_user.first_name)
+    return render_template('admin.html',user=current_user)
 
 @app.route('/reports')
+@login_required
 def reports():
     records = db.session.query(Reports).filter_by(status=1).all()
         
-    return render_template('reports.html', reports=records)
+    return render_template('reports.html',isAdmin = is_admin(),user=current_user, reports=records)
 
 
 @app.route('/banuser/<reported_id>', methods=['GET','POST'])
@@ -169,6 +183,6 @@ def banwithid():
                 form.user_id.data=''
                 return redirect(url_for('ban'))
             else:
-                return render_template('ban.html',form = form, notFound=True)
-        return render_template('ban.html', form = form)
+                return render_template('ban.html',isAdmin = is_admin(),user=current_user,form = form, notFound=True)
+        return render_template('ban.html',isAdmin = is_admin(),user=current_user, form = form)
 

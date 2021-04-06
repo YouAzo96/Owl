@@ -13,20 +13,7 @@
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
     <style>
-      .bd-placeholder-img {
-        font-size: 1.125rem;
-        text-anchor: middle;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        user-select: none;
-      }
-
-      @media (min-width: 768px) {
-        .bd-placeholder-img-lg {
-          font-size: 3.5rem;
-        }
-
-      }
+      
       #major_id{
       	width:400px;
       }
@@ -35,30 +22,26 @@
       	    border: unset;
       	    color: white;
 			background : #007bff;
-	      }
-	      .signindiv{
-	      	top: 50%;
-	      	    left: 50%;
-	      	    height: 200px;
-	      	    position: absolute;
-	      	    width: auto;
-	      	    margin-top: -100px;
-	      	    margin-left: -100px;
-	      }
+	  }
+	  form{
+	  	background: white;
+	  	    padding: 5vh;
+	  	    margin-bottom: 5vh;
+	  	    margin-top: 5vh;
+	  }
     </style>
 
     
-    <!-- Custom styles for this template -->
-    <link href= "{{url_for('static', filename= 'signin.css') }}" rel="stylesheet"> 
+    
   </head>
-  <body class="text-center">
+  <body class="text-center" style="display:flex;    background: #F5F5F6;">
     
-<div class="signindiv">
-    <img class="mb-4" src="{{ url_for('static', filename='scsulogo.png') }}" alt="" style="margin-top:10px !important" width="75" height="75"/>
+<div style="margin:auto">
 
-  <form action=''  method='post'  style="border: 1px solid #1F76B1;border-radius:5px"  enctype="multipart/form-data"  novalidate>
+  <form action=''  method='post'  enctype="multipart/form-data"  novalidate>
   {{ form.hidden_tag() }}
-    
+        <img class="mb-4" src="{{ url_for('static', filename='images/scsulogo.png') }}" alt="" style="margin-top:10px !important" width="75" height="75"/>
+
     <h1 class="h3 mb-3 fw-normal">Please Sign Up</h1>
 	 <div class="form-floating">
     <label for="floatingInput">Select an Image </label>
@@ -105,7 +88,7 @@
 	    </div>
 
     <p class=" btn btn-lg btn-primary" >{{ form.submit() }}</p>
-     
+     <p> Already have an account? Login <a href="/login">Here</a></p>
   </form>
   </div>
 {% if user_exists %}

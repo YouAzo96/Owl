@@ -1,6 +1,15 @@
+{% include 'navbar.html'%}
 {%block content%}
+<style>
+th, td{
+	padding:20px;
+}
+
+
+</style>
+<div style="text-align:center">
 <h2>Reports</h2>
-		<table>
+		<table style="margin: 0 auto">
 			<tr>
 				<th>User ID</th>
 				<th>Description</th>
@@ -16,6 +25,7 @@
 		</tr>
 		{% endfor %}
 		</table>
-				
+</div>	
 {% endblock %}
 		
+{% include 'footer.html'%}
