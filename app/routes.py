@@ -182,7 +182,7 @@ def banwithid():
                 db.session.execute(stmt)
                 db.session.commit()
                 form.user_id.data=''
-                return redirect(url_for('ban', reported_id=form.user_id.data))
+                return redirect(url_for('banwithid'))
             else:
                 return render_template('ban.html',isAdmin = is_admin(),user=current_user,form = form, notFound=True)
         return render_template('ban.html',isAdmin = is_admin(),user=current_user, form = form)
