@@ -43,6 +43,9 @@
         <img class="mb-4" src="{{ url_for('static', filename='images/scsulogo.png') }}" alt="" style="margin-top:10px !important" width="75" height="75"/>
 
     <h1 class="h3 mb-3 fw-normal">Please Sign Up</h1>
+	  {% if user_exists %}
+    <p> User already exists. If that's your account log in<a href='/login'>  here</a>   </p>
+      {% endif  %}
 	 <div class="form-floating">
     <label for="floatingInput">Select an Image </label>
      <p > {{ form.image }}</p>
@@ -91,9 +94,7 @@
      <p> Already have an account? Login <a href="/login">Here</a></p>
   </form>
   </div>
-{% if user_exists %}
-    <p> User already exists. If that's your account log in<a href='/login'>  here</a>   </p>
-      {% endif  %}
+
 
 
     
