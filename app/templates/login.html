@@ -76,16 +76,16 @@
 
 
     <p class="w-100 btn btn-lg btn-primary" >{{ form.submit() }}</p>
-     
-  </form>
-  </div>
-{% if user_not_found  %}
+     {% if user_not_found  %}
     <p> User not found  </p>
     {% elif wrong_pass  %}
     <p> Wrong Password  </p>
      {% elif not_active  %}
       <p> Account has been disabled check with administrators </p>
       {% endif  %}
+  </form>
+  </div>
+
 
 
     
