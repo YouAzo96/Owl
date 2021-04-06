@@ -81,21 +81,22 @@ def signup():
         address = form.address.data
         gender = form.gender.data
         major_id= form.major_id.data
+        filename = False
         image = request.files['image']
-        if image is not None:
-        
+        if image.filename != '':
             filename = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
-        else: 
-            filename =''
-                                   
+                 
         if  form.validate_email(email)== False:
             return render_template('register.html', title='SignUp', form=form, user_exists=True)
         
         # Create a  record to store in the DB
-        u = User(first_name=firstname, last_name=lastname,email=email,image=image.filename,address=address,gender=gender,major_id=major_id,active=True,user_type='user' )
-        u.set_password(form.password.data)
-        if filename != '':
+        if filename is not False:
+            u = User(first_name=firstname, last_name=lastname,email=email,image=image.filename,address=address,gender=gender,major_id=major_id,active=True,user_type='user' )
+            u.set_password(form.password.data)
             image.save(filename)
+        else:
+            u = User(first_name=firstname, last_name=lastname,email=email,image='',address=address,gender=gender,major_id=major_id,active=True,user_type='user' )
+            u.set_password(form.password.data)
         db.session.add(u)
         db.session.commit()
 
@@ -170,7 +171,7 @@ def ban(reported_id):
     return redirect(url_for('banwithid'))      
 
 
-@app.route('/banuser')
+@app.route('/banuser',methods=['GET','POST'])
 @login_required
 def banwithid():
         form = BanForm()
@@ -181,7 +182,7 @@ def banwithid():
                 db.session.execute(stmt)
                 db.session.commit()
                 form.user_id.data=''
-                return redirect(url_for('ban'))
+                return redirect(url_for('ban', reported_id=form.user_id.data))
             else:
                 return render_template('ban.html',isAdmin = is_admin(),user=current_user,form = form, notFound=True)
         return render_template('ban.html',isAdmin = is_admin(),user=current_user, form = form)
