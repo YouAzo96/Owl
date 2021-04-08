@@ -33,8 +33,35 @@ class Ride(db.Model):
     __tablename__='ride'
     ride_id = db.Column(db.Integer, primary_key=True)
     driver_id = db.Column(db.Integer,sqlalchemy.ForeignKey('user.user_id'), nullable=False)
+    from_location = db.Column(db.String (100))
+    to_location = db.Column(db.String (100))
+    start_time = db.Column(db.Time, nullable=False)
+    end_time = db.Column(db.Time, nullable=False)
+    start_date = db.Column(db.Date, nullable=False)
+    end_date= db.Column(db.Date, nullable=False)
+    max_passengers= db.Column(db.Integer, nullable=False)
+    full = db.Column(db.Boolean, nullable=False,default=False)
+    def validate_passengers(self):
+        CurrentNumOfPassengers= db.session.query(Ride_passengers).filter_by(ride_id=self.ride_id).count()
+        if self.full:
+            return False
+        if CurrentNumOfPassengers+1 < self.max_passengers:
+            return True
+        elif  CurrentNumOfPassengers+1 == self.max_passengers:
+            self.full = True
+            return True        
+                
+class Ride_Passengers(db.Model):
+    __tablename__='ride_passengers'
+    id = db.Column(db.Integer, primary_key=True)
+    ride_id = db.Column(db.Integer,sqlalchemy.ForeignKey('ride.ride_id'), nullable=False)
     passenger_id = db.Column(db.Integer,sqlalchemy.ForeignKey('user.user_id'), nullable=False)
-    destination = db.Column(db.String (100), unique=True)
+
+class Requests(db.Model):
+    __tablename__='requests'
+    id = db.Column(db.Integer, primary_key=True)
+    ride_id = db.Column(db.Integer,sqlalchemy.ForeignKey('ride.ride_id'), nullable=False)
+    requester = db.Column(db.Integer,sqlalchemy.ForeignKey('user.user_id'), nullable=False)
 
 class Announcement(db.Model):
     __tablename__='announcement'
