@@ -1,8 +1,7 @@
 from flask import Flask
-from flask_bootstrap import Bootstrap
-
-# New imports
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
+from flask_bootstrap import Bootstrap
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
 import os
@@ -29,10 +28,14 @@ app.config['SQLALCHEMY_DATABASE_URI'] = ('mysql+pymysql://'
                                         + DB_NAME)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"]= True
 
-
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+UPLOAD_FOLDER=os.path.join(APP_ROOT, 'static', 'images')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # Create database connection and associate it with the Flask application
 db = SQLAlchemy(app)
-# Add models
+login = LoginManager(app)
+login.login_view ='login'
+
 from app import routes, models
 from app.models import User, Announcement
 
