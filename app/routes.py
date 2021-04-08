@@ -83,6 +83,8 @@ def signup():
         major_id= form.major_id.data
         filename = False
         image = request.files['image']
+        if form.password.data != form.password2.data:
+            return render_template('register.html', title='SignUp', form=form, invalid_password=True)
         if image.filename != '':
             filename = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
                  
