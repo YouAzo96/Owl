@@ -3,11 +3,12 @@ from flask import render_template, redirect, url_for, flash,request
 from flask_login import login_user, logout_user, login_required, current_user
 from app.forms import RegistrationForm,  LoginForm,BanForm,AddAnnouncement
 from app import db
-from sqlalchemy import update
+from sqlalchemy import update, func
 from werkzeug.utils import secure_filename
-from app.models import User, Major, User_Intrest, Rating, Intrest,Reports,Announcement
+from app.models import User, Major, User_Intrest, Rating, Intrest,Reports,Announcement, Requests, Ride, Ride_Passengers
 import sys
 import os
+import pdb, pprint
 
 @app.route('/', methods=['GET','POST'])
 def index():
@@ -109,8 +110,16 @@ def signup():
 @app.route('/profile', defaults={'user_id' : None})
 @app.route('/profile/<user_id>')
 def viewprofile(user_id):
+    if user_id is None and current_user.is_anonymous:
+        return redirect(url_for('index'))
+        
     if user_id is None:
         user_profile=user =db.session.query(User).filter_by(user_id=current_user.user_id).first()
+    elif user_id is not None and current_user.is_anonymous:
+        user_profile =db.session.query(User).filter_by(user_id=user_id).first()
+        if user_profile.active == False:
+             return (redirect(url_for('index')))
+        user = None
     else:
         user_profile = db.session.query(User).filter_by(user_id=user_id).first()
         if user_profile.active == False:
@@ -145,11 +154,11 @@ def viewprofile(user_id):
 @login_required
 def admin():
     if current_user is None:
-        return render_template('login.html');   
+        return redirect(url_for('login'));  
     if   not current_user.is_authenticated:
-        return render_template('login.html'); 
+        return redirect(url_for('login'));  
     if not is_admin():
-        return render_template('login.html');     
+        return redirect(url_for('index'));  
     return render_template('admin.html',user=current_user)
 
 @app.route('/reports')
@@ -189,3 +198,21 @@ def banwithid():
                 return render_template('ban.html',isAdmin = is_admin(),user=current_user,form = form, notFound=True)
         return render_template('ban.html',isAdmin = is_admin(),user=current_user, form = form)
 
+@app.route('/rides')
+def ridebrowser():
+    # we need rides list called : rides 
+    # we need number of reuests each ride has: num_of_requests
+    # we need first and last name and image of each the driver as a list: drivers
+    if not current_user.is_anonymous:
+        user = current_user
+    else:
+        user = ''
+    num_of_passengers = db.session.query(Ride_Passengers.ride_id, func.count(Ride_Passengers.ride_id).label('count')).group_by(Ride_Passengers.ride_id).all()
+    rides = db.session.query(Ride).all()
+    drivers_ids =[]
+    for ride in rides:
+        drivers_ids.append(ride.driver_id)
+
+    drivers = db.session.query(User.user_id,User.first_name, User.last_name, User.image).filter(User.user_id.in_(drivers_ids)).all()
+    print(drivers, file=sys.stderr)
+    return render_template('rides.html',user=user,drivers = drivers, rides = rides, num_of_passengers = num_of_passengers)
