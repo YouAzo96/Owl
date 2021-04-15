@@ -40,7 +40,7 @@ class Ride(db.Model):
     start_date = db.Column(db.Date, nullable=False)
     end_date= db.Column(db.Date, nullable=False)
     max_passengers= db.Column(db.Integer, nullable=False)
-    full = db.Column(db.Boolean, nullable=False,default=False)
+    full = db.Column(db.Boolean, nullable=False,default='0')
     def validate_passengers(self):
         CurrentNumOfPassengers= db.session.query(Ride_passengers).filter_by(ride_id=self.ride_id).count()
         if self.full:
