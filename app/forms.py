@@ -1,7 +1,10 @@
+
 from flask_wtf import FlaskForm
 from wtforms import validators, StringField,SelectField, IntegerField,TextAreaField, SubmitField, TextField, PasswordField, BooleanField,FileField
 from wtforms.validators import DataRequired, ValidationError, Email, EqualTo
 from app.models import User, Major
+from wtforms_components  import DateField, TimeField
+from flask_wtf.html5 import IntegerRangeField
 
 class RegistrationForm(FlaskForm):
     first_name = StringField('FirstName', validators= [DataRequired()], render_kw={"placeholder": "First Name"})
@@ -38,4 +41,17 @@ class AddAnnouncement(FlaskForm):
     flag = SelectField('Flag: ',choices=[('Warning!','Warning!'),('Notice','Notice'),('Alert','Alert')], validators=[validators.optional()])
     description = TextAreaField('Description: ', validators=[DataRequired(),validators.length(max=100)])
     submit = SubmitField('Post')
+
+class SchedulerForm(FlaskForm):
+    
+    
+    to_location =  StringField('To Location', validators= [DataRequired()], render_kw={"placeholder": "To location"})
+    from_location = StringField('from Location', validators= [DataRequired()], render_kw={"placeholder": "From Location"})
+    start_date=  DateField('Start Date' , format = '%Y-%m-%d', validators= [DataRequired()]) 
+    end_date=    DateField('End Date' , format = '%Y-%m-%d',validators= [DataRequired()] )
+    start_time=  TimeField ('Start Time',validators= [DataRequired()])
+    end_time=   TimeField ('End Time',validators= [DataRequired()])
+    max_passengers= IntegerRangeField ('Passengers', render_kw={"min":"1", "max": "7","value":"1"})
+     
+    submit = SubmitField('Submit')
 

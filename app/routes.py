@@ -1,7 +1,7 @@
 from app import app
 from flask import render_template, redirect, url_for, flash,request
 from flask_login import login_user, logout_user, login_required, current_user
-from app.forms import RegistrationForm,  LoginForm,BanForm,AddAnnouncement
+from app.forms import RegistrationForm,  LoginForm,BanForm,AddAnnouncement, SchedulerForm
 from app import db
 from sqlalchemy import update, func
 from werkzeug.utils import secure_filename
@@ -160,6 +160,38 @@ def admin():
     if not is_admin():
         return redirect(url_for('index'));  
     return render_template('admin.html',user=current_user)
+
+
+@app.route('/scheduler', methods=['GET','POST'])
+@login_required 
+def scheduler():
+    if current_user.is_anonymous:
+        return redirect(url_for('login'))
+        
+    form = SchedulerForm()
+    time_error =  date_error = False
+    if  form.validate_on_submit():
+        from_location = form.from_location.data
+        to_location = form.to_location.data
+        start_time = form.start_time.data.strftime('%H:%M:%S')
+        end_time = form.end_time.data.strftime('%H:%M:%S')
+        start_date = form.start_date.data
+        end_date = form.end_date.data
+        max_passengers = form.max_passengers.data
+        if start_date == end_date :
+            if start_time >  end_time :
+                 time_error = True
+        if start_date > end_date :
+           date_error = True
+
+        if time_error or date_error:
+             return render_template ('scheduler.html' ,form=form, time_error=time_error, date_error=date_error)
+        ride = Ride(driver_id=current_user.user_id,from_location=from_location,to_location=to_location,start_time=start_time,end_time=end_time, start_date=start_date, end_date=end_date, max_passengers=max_passengers)
+        db.session.add(ride)
+        db.session.commit()
+        
+        return redirect(url_for('index'))
+    return render_template ('scheduler.html' ,form=form, time_error=time_error, date_error=date_error)
 
 @app.route('/reports')
 @login_required
