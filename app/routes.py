@@ -208,7 +208,8 @@ def ridebrowser():
     else:
         user = ''
     num_of_passengers = db.session.query(Ride_Passengers.ride_id, func.count(Ride_Passengers.ride_id).label('count')).group_by(Ride_Passengers.ride_id).all()
-    rides = db.session.query(Ride).all()
+ 
+    rides = db.session.query(Ride).order_by(Ride.start_date.desc()).all()
     drivers_ids =[]
     for ride in rides:
         drivers_ids.append(ride.driver_id)
@@ -216,3 +217,18 @@ def ridebrowser():
     drivers = db.session.query(User.user_id,User.first_name, User.last_name, User.image).filter(User.user_id.in_(drivers_ids)).all()
     print(drivers, file=sys.stderr)
     return render_template('rides.html',user=user,drivers = drivers, rides = rides, num_of_passengers = num_of_passengers)
+
+
+@app.route('/join/<ride_id>', methods=['GET','POST'])
+@login_required
+def joinride(ride_id):
+    if ride_id is None or ride_id=='':
+        return redirect(url_for('index'))
+    elif current_user.is_anonymous:
+        return redirect(url_for('login'))
+        
+    request = Request(ride_id = ride_id, requester=current_user)
+    db.session.add(request)
+    db.session.commit()
+    
+    return redirect(url_for('profilepage.html#myrequests'))
