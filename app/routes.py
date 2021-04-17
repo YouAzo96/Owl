@@ -1,7 +1,7 @@
 from app import app
 from flask import render_template, redirect, url_for, flash,request
-from flask_login import login_user, logout_user, login_required, current_user
-from app.forms import RegistrationForm,  LoginForm,BanForm,AddAnnouncement, SchedulerForm
+from flask_login import login_user, logout_user, login_required, current_user,LoginManager
+from app.forms import RegistrationForm,  LoginForm,BanForm,AddAnnouncement, SchedulerForm,ChangePasswordForm
 from app import db
 from sqlalchemy import update, func
 from werkzeug.utils import secure_filename
@@ -264,3 +264,38 @@ def joinride(ride_id):
     db.session.commit()
     
     return redirect(url_for('profilepage.html#myrequests'))
+
+@app.route('/editprofile',methods=['GET', 'POST'])
+@login_required
+def editprofile():
+    form=EditProfileForm()
+    if form.validate_on_submit():
+        address = form.address.data
+        major_id= form.major_id.data
+        filename = False
+        image = request.files['image']
+    
+    return redirect(url_for('editprofile'))
+    return render_templates('editprofile.html', form=form, user=current_user)
+
+
+@app.route('/change_password',methods=['GET', 'POST'])
+@login_required
+def change_password():
+    user=current_user
+    form= ChangePasswordForm()
+    if form.validate_on_submit():
+        old_password = form.current_password.data
+        new_password = form.password.data
+        confirm_password = form.password2.data
+        if user.check_password(old_password):
+            if new_password == confirm_password:
+                user.set_password(new_password)
+                db.session.commit()
+                return redirect(url_for('index'))
+            else:
+               return render_template('changepassword.html', form=form, pass_not_match=True, user=user) 
+        else:
+            return render_template('changepassword.html', form=form, invalid_pass=True, user=user) 
+
+    return render_template('changepassword.html', form=form, user=user) 

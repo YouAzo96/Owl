@@ -55,3 +55,14 @@ class SchedulerForm(FlaskForm):
      
     submit = SubmitField('Submit')
 
+class EditProfileForm(FlaskForm):
+    image= FileField()
+    major_id= SelectField('Major', validators= [DataRequired()], render_kw={"placeholder": "Major"})
+    address = StringField('Address', validators= [DataRequired()], render_kw={"placeholder": "Address"})
+    submit = SubmitField('Update')
+    
+class ChangePasswordForm(FlaskForm):
+    password = PasswordField('Password', validators=[DataRequired()], render_kw={"placeholder": "New Password"})
+    password2= PasswordField('Repeat Password', validators=[DataRequired()], render_kw={"placeholder": "Verify Password"})
+    current_password= PasswordField('Password', validators=[DataRequired()], render_kw={"placeholder": "Current Password"})
+    submit = SubmitField('Save')
