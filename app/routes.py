@@ -117,11 +117,10 @@ def signup():
         return redirect(url_for('index'))
     return render_template('register.html', title='SignUp', form=form)
 
-def Notifications(message):
-    user = current_user
+def Notifications(email,message):
     html=render_template('Notifications.html',message=message )
     subject= "OWLPOOL NOTIFICATION"
-    send_email( user.email, subject, html)
+    send_email(email, subject, html)
     
 @app.route('/confirm')
 @app.route('/confirm/<token>')
