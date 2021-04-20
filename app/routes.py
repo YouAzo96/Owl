@@ -1,7 +1,7 @@
 from app import app
 from flask import render_template, redirect, url_for, flash,request
-from flask_login import login_user, logout_user, login_required, current_user,LoginManager
-from app.forms import RegistrationForm,  LoginForm,BanForm,AddAnnouncement, SchedulerForm,ChangePasswordForm
+from flask_login import login_user, logout_user, login_required, current_user, LoginManager
+from app.forms import RegistrationForm,  LoginForm,BanForm,AddAnnouncement, SchedulerForm,ChangePasswordForm,EditProfileForm
 from app import db
 from sqlalchemy import update, func
 from werkzeug.utils import secure_filename
@@ -265,18 +265,28 @@ def joinride(ride_id):
     
     return redirect(url_for('profilepage.html#myrequests'))
 
-@app.route('/editprofile',methods=['GET', 'POST'])
+@app.route('/edit_profile',methods=['GET', 'POST'])
 @login_required
 def editprofile():
+    user = current_user
     form=EditProfileForm()
     if form.validate_on_submit():
+        print('hi',file=sys.stderr)
         address = form.address.data
         major_id= form.major_id.data
+        form.major_id.process_data(user.major_id)
         filename = False
         image = request.files['image']
-    
-    return redirect(url_for('editprofile'))
-    return render_templates('editprofile.html', form=form, user=current_user)
+        if image.filename != '':
+            filename= os.path.join(app.config['UPLOAD_FOLDER'],image.filename)
+        if filename is not False: 
+            user.image = image.filename
+            image.save(filename)
+        user.major_id = major_id 
+        user.address = address
+        db.session.commit()
+        return redirect(url_for('viewprofile'))
+    return render_template('editprofile.html', form=form, user=user,user_profile=user)
 
 
 @app.route('/change_password',methods=['GET', 'POST'])

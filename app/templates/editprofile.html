@@ -116,21 +116,27 @@
         font-weight: 600;
         color: #0062cc;
     }
+    .profile-img>input{
+    	display:none;
+    }
 </style>
 {% include 'navbar.html' %}
 <div class="container emp-profile">
-    <form method="post">
+    <form method="post" action='' enctype="multipart/form-data" novalidate>
+    {{form.hidden_tag()}}
         <div class="row">
             <div class="col-md-4">
                 <div class="profile-img">
+                <label for="file-input">
                     {% if user_profile.image %}
-                    <img style="border-radius:50%;height:150px;width:150px"
+                    <img id="pi" style="border-radius:50%;height:150px;width:150px"
                         src="{{ url_for('static', filename='images/'+user_profile.image | default('user.png') ) }} " />
                     {%else%}
-                    <img style="border-radius:50%;height:150px;width:150px"
+                    <img id="pi" style="border-radius:50%;height:150px;width:150px"
                         src="{{ url_for('static', filename='images/user.png') }} " />
-
                     {%endif%}
+                   </label>
+                    {{form.image}}
                 </div>
             </div>
             <div class="col-md-6">
@@ -139,7 +145,7 @@
                         {{user_profile.first_name }} {{ user_profile.last_name }}
                     </h5>
                     <h6>
-                        {{ major.major_name}}
+                        {{ form.major_id(size=1,value='user_profile.major_id')}}
                     </h6>
                     <p class="proile-rating">RATING : <span>{{ rating }}/5</span></p>
                     <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -147,24 +153,11 @@
                             <a class="nav-link active" style="color: #0062cc !important;" id="home-tab" data-toggle="tab" href="#About" role="tab"
                                 aria-controls="home" aria-selected="true">About</a>
                         </li>
-                        {%if isMyProfile %}
-                        <li class="nav-item">
-                            <a class="nav-link" style="color: #0062cc !important;"  id="ride-tab" data-toggle="tab" href="#Rides" role="tab"
-                                aria-controls="ride" aria-selected="false">My Rides</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" style="color: #0062cc !important;" id="history-tab" data-toggle="tab" href="#History" role="tab"
-                                aria-controls="history" aria-selected="false">Rides History </a>
-                        </li>
-                        {%endif%}
+                    
                     </ul>
                 </div>
             </div>
-            {%if isMyProfile %}
-            <div class="col-md-2">
-                <a href="/edit_profile" class="profile-edit-btn" name="btnAddMore">Edit Profile</a>
-            </div>
-            {%endif%}
+
         </div>
         <div class="row">
             <div class="col-md-4">
@@ -195,26 +188,39 @@
                                 <p>{{ user_profile.email }}</p>
                             </div>
                         </div>
-<div class="row">
+					 	<div class="row">
                             <div class="col-md-6">
                                 <label>Address</label>
                             </div>
                             <div class="col-md-6">
-                                <p>{{ user_profile.address }}</p>
+                                <p>{{ form.address(size=40,value=user_profile.address) }}</p>
                             </div>
                         </div>
-
+						<div class="row" style="align-items:center;text-align:center">
+				                           
+				                            <div>
+				                                <p  class="btn btn-lg btn-primary">{{ form.submit() }}</p>
+				                            </div>
+				                        </div>
                     </div>
-                    {%if isMyProfile %}
-                    <div class="tab-pane fade" id="Rides" role="tabpanel" aria-labelledby="ride-tab">
-	
-                    </div>
-                    <div class="tab-pane fade" id="History" role="tabpanel" aria-labelledby="history-tab">
-
-                    </div>
-                    {%endif%}
+                    
                 </div>
             </div>
         </div>
     </form>
 </div>
+<script>
+function readURL(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            $('#pi').attr('src', e.target.result);
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+$("#file-input").change(function(){
+    readURL(this);
+});
+
+</script>
