@@ -4,7 +4,8 @@ from wtforms import validators, StringField,SelectField, IntegerField,TextAreaFi
 from wtforms.validators import DataRequired, ValidationError, Email, EqualTo
 from app.models import User, Major
 from wtforms_components  import DateField, TimeField
-from flask_wtf.html5 import IntegerRangeField
+
+from wtforms.fields.html5 import IntegerRangeField
 
 class RegistrationForm(FlaskForm):
     first_name = StringField('FirstName', validators= [DataRequired()], render_kw={"placeholder": "First Name"})
@@ -25,6 +26,12 @@ class RegistrationForm(FlaskForm):
     def __init__(self, *args,**kwargs):
         super(RegistrationForm, self).__init__(*args,**kwargs)
         self.major_id.choices=[(c.major_id,c.major_name) for c in Major.query.all()]
+    def clean_email(self):
+            data = self.email.data
+            if "@southernct.edu" not in data:   # any check you need
+                return False
+            return data
+    
 
 
 class LoginForm(FlaskForm):
@@ -43,8 +50,6 @@ class AddAnnouncement(FlaskForm):
     submit = SubmitField('Post')
 
 class SchedulerForm(FlaskForm):
-    
-    
     to_location =  StringField('To Location', validators= [DataRequired()], render_kw={"placeholder": "To location"})
     from_location = StringField('from Location', validators= [DataRequired()], render_kw={"placeholder": "From Location"})
     start_date=  DateField('Start Date' , format = '%Y-%m-%d', validators= [DataRequired()]) 
@@ -52,6 +57,15 @@ class SchedulerForm(FlaskForm):
     start_time=  TimeField ('Start Time',validators= [DataRequired()])
     end_time=   TimeField ('End Time',validators= [DataRequired()])
     max_passengers= IntegerRangeField ('Passengers', render_kw={"min":"1", "max": "7","value":"1"})
-     
     submit = SubmitField('Submit')
+
+class FilterForm(FlaskForm):
+    from_location = StringField('from Location', validators= [DataRequired()], render_kw={"placeholder": "From Location"})
+    to_location =  StringField('To Location', validators= [DataRequired()], render_kw={"placeholder": "To location"})
+    start_date=  DateField('Start Date' , format = '%Y-%m-%d', validators= [DataRequired()]) 
+    end_date=    DateField('End Date' , format = '%Y-%m-%d',validators= [DataRequired()] )
+    start_time=  TimeField ('Start Time',validators= [DataRequired()])
+    end_time=   TimeField ('End Time',validators= [DataRequired()])
+    interests = StringField('Interests', render_kw={"data-role":"tagsinput"})
+    submit = SubmitField('Filter')
 

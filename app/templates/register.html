@@ -46,6 +46,9 @@
 	  {% if user_exists %}
     <p> User already exists. If that's your account log in<a href='/login'>  here</a>   </p>
       {% endif  %}
+      {% if email_format%}
+      <p> Email format is invalid. make sure it's a southern.edu email.</p>
+      {%endif%}
 	 <div class="form-floating">
     <label for="floatingInput">Select an Image </label>
      <p > {{ form.image }}</p>

@@ -1,7 +1,14 @@
 <!doctype html>
 <html lang="en">
 <head>
+<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+<script> 
+var fade_out = function() {
+  $("#myalert").fadeOut("slow");
+}
 
+setTimeout(fade_out, 5000);
+</script>
 <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 {% block styles%}
@@ -10,10 +17,44 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 {% endblock %}
 <title>OwlPool</title>
+<style>
+.myalert {
+  margin-bottom: 20px;
+  background-color: #60E6AE;
+  color: white;
+  text-align: center;
+  width:100%;
+  
+  
+}
+
+.closebtn {
+  margin-left: 15px;
+  color: white;
+  font-weight: bold;
+  margin-right: 5px;
+  float: right;
+  font-size: 22px;
+  line-height: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.closebtn:hover {
+  color: black;
+}
+</style>
 </head>
 <body>
 {%include "navbar.html" %}
+
 <div style="text-align:center">
+{% if alert is not none %}
+<div class="myalert" id="myalert">
+  <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> 
+  <p>{{ alert }}</p> 
+</div>
+{%endif%}
 {% extends "announcements.html" %}
 </div>
 <br>
@@ -21,4 +62,5 @@
 
 </body>  
 </html>
+
 

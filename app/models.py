@@ -41,6 +41,7 @@ class Ride(db.Model):
     end_date= db.Column(db.Date, nullable=False)
     max_passengers= db.Column(db.Integer, nullable=False)
     full = db.Column(db.Boolean, nullable=False,default=False)
+    completed = db.Column(db.Boolean, nullable=False, default=False)
     def validate_passengers(self):
         CurrentNumOfPassengers= db.session.query(Ride_passengers).filter_by(ride_id=self.ride_id).count()
         if self.full:
@@ -63,6 +64,7 @@ class Requests(db.Model):
     ride_id = db.Column(db.Integer,sqlalchemy.ForeignKey('ride.ride_id'), nullable=False)
     requester = db.Column(db.Integer,sqlalchemy.ForeignKey('user.user_id'), nullable=False)
 
+        
 class Announcement(db.Model):
     __tablename__='announcement'
     announcement_id = db.Column(db.Integer, primary_key=True)
