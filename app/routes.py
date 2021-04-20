@@ -360,7 +360,7 @@ def joinride(ride_id):
     request = Requests(ride_id=ride_id, requester=current_user.user_id)
     db.session.add(request)
     db.session.commit()
-    return redirect(url_for('profilepage.html#myrequests'))
+    return redirect(url_for('viewprofile'))
 
 @app.route('/edit_profile',methods=['GET', 'POST'])
 @login_required
