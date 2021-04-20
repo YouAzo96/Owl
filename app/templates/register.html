@@ -85,9 +85,10 @@
       <p >{{ form.password(size=50) }}</p>
     </div>
 
-	<div class="form-floating">
+	<div  class="form-floating">
 	    	
 	      <p >{{ form.password2(size=50) }}</p>
+		<span id="pass_error" style="visibility:hidden">Password doesn't match verification</span>
 	    </div>
 
     <p class=" btn btn-lg btn-primary" >{{ form.submit() }}</p>
@@ -95,6 +96,20 @@
   </form>
   </div>
 
+  
+<script type="text/javascript">
+document.getElementById("password2").addEventListener("keyup", checkPassword, false);
+	
+	function checkPassword(){
+		var password = 	document.getElementById('pass').value;
+		var password2 = document.getElementById('password2').value;
+		if(password.substr(0,password2.length) != password2){
+			document.getElementById('pass_error').style.visibility='visible';
+		}else{
+			document.getElementById('pass_error').style.visibility='hidden';
+		}
+	}
+</script>
 
 
     

@@ -1,15 +1,16 @@
 from app import app
 from flask import render_template, redirect, url_for, flash,request,session
 from flask_login import login_user, logout_user, login_required, current_user,LoginManager
-from app.forms import RegistrationForm,  LoginForm,BanForm,AddAnnouncement
 from app.email import send_email
 from app.token import generate_confirmation_token, confirm_token
 from app import db
-from sqlalchemy import update
+from app.forms import RegistrationForm,  LoginForm,BanForm,AddAnnouncement, SchedulerForm
+from sqlalchemy import update, func
 from werkzeug.utils import secure_filename
-from app.models import User, Major, User_Intrest, Rating, Intrest,Reports,Announcement
+from app.models import User, Major, User_Intrest, Rating, Intrest,Reports,Announcement, Requests, Ride, Ride_Passengers
 import sys
 import os
+import pdb, pprint
 
 
 
@@ -92,8 +93,11 @@ def signup():
         filename = False
         confirmed=False
         image = request.files['image']
+        if form.password.data != form.password2.data:
+            return render_template('register.html', title='SignUp', form=form, invalid_password=True)
         if image.filename != '':
             filename = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
+                 
         if  form.validate_email(email)== False:
             return render_template('register.html', title='SignUp', form=form, user_exists=True)
         
@@ -104,6 +108,7 @@ def signup():
             image.save(filename)
         else:
             u = User(first_name=firstname, last_name=lastname,email=email,image='',address=address,gender=gender,major_id=major_id,active=True,user_type='user',confirmed=False )
+
             u.set_password(form.password.data)
         db.session.add(u)
         db.session.commit()
@@ -171,8 +176,17 @@ def confirm_email(token):
 @app.route('/profile', defaults={'user_id' : None})
 @app.route('/profile/<user_id>')
 def viewprofile(user_id):
+    if user_id is None and current_user.is_anonymous:
+        return redirect(url_for('index'))
+        
     if user_id is None:
         user_profile=user =db.session.query(User).filter_by(user_id=current_user.user_id).first()
+
+    elif user_id is not None and current_user.is_anonymous:
+        user_profile =db.session.query(User).filter_by(user_id=user_id).first()
+        if user_profile.active == False:
+             return (redirect(url_for('index')))
+        user = None
     else:
         user_profile = db.session.query(User).filter_by(user_id=user_id).first()
         if user_profile.active == False:
@@ -207,12 +221,45 @@ def viewprofile(user_id):
 @login_required
 def admin():
     if current_user is None:
-        return render_template('login.html');   
+        return redirect(url_for('login'));  
     if   not current_user.is_authenticated:
-        return render_template('login.html'); 
+        return redirect(url_for('login'));  
     if not is_admin():
         return render_template('login.html');     
     return render_template('admin.html',user=current_user)
+
+
+
+@app.route('/scheduler', methods=['GET','POST'])
+@login_required 
+def scheduler():
+    if current_user.is_anonymous:
+        return redirect(url_for('login'))
+        
+    form = SchedulerForm()
+    time_error =  date_error = False
+    if  form.validate_on_submit():
+        from_location = form.from_location.data
+        to_location = form.to_location.data
+        start_time = form.start_time.data.strftime('%H:%M:%S')
+        end_time = form.end_time.data.strftime('%H:%M:%S')
+        start_date = form.start_date.data
+        end_date = form.end_date.data
+        max_passengers = form.max_passengers.data
+        if start_date == end_date :
+            if start_time >  end_time :
+                 time_error = True
+        if start_date > end_date :
+           date_error = True
+
+        if time_error or date_error:
+             return render_template ('scheduler.html' ,form=form, time_error=time_error, date_error=date_error)
+        ride = Ride(driver_id=current_user.user_id,from_location=from_location,to_location=to_location,start_time=start_time,end_time=end_time, start_date=start_date, end_date=end_date, max_passengers=max_passengers)
+        db.session.add(ride)
+        db.session.commit()
+        
+        return redirect(url_for('index'))
+    return render_template ('scheduler.html' ,form=form, time_error=time_error, date_error=date_error)
 
 @app.route('/reports')
 @login_required
@@ -251,3 +298,37 @@ def banwithid():
                 return render_template('ban.html',isAdmin = is_admin(),user=current_user,form = form, notFound=True)
         return render_template('ban.html',isAdmin = is_admin(),user=current_user, form = form)
 
+@app.route('/rides')
+def ridebrowser():
+    # we need rides list called : rides 
+    # we need number of reuests each ride has: num_of_requests
+    # we need first and last name and image of each the driver as a list: drivers
+    if not current_user.is_anonymous:
+        user = current_user
+    else:
+        user = ''
+    num_of_passengers = db.session.query(Ride_Passengers.ride_id, func.count(Ride_Passengers.ride_id).label('count')).group_by(Ride_Passengers.ride_id).all()
+ 
+    rides = db.session.query(Ride).order_by(Ride.start_date.desc()).all()
+    drivers_ids =[]
+    for ride in rides:
+        drivers_ids.append(ride.driver_id)
+
+    drivers = db.session.query(User.user_id,User.first_name, User.last_name, User.image).filter(User.user_id.in_(drivers_ids)).all()
+    print(drivers, file=sys.stderr)
+    return render_template('rides.html',user=user,drivers = drivers, rides = rides, num_of_passengers = num_of_passengers)
+
+
+@app.route('/join/<ride_id>', methods=['GET','POST'])
+@login_required
+def joinride(ride_id):
+    if ride_id is None or ride_id=='':
+        return redirect(url_for('index'))
+    elif current_user.is_anonymous:
+        return redirect(url_for('login'))
+        
+    request = Request(ride_id = ride_id, requester=current_user)
+    db.session.add(request)
+    db.session.commit()
+    
+    return redirect(url_for('profilepage.html#myrequests'))

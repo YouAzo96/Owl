@@ -1,6 +1,7 @@
 <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
 <style>
     body {
         background: -webkit-linear-gradient(left, #3931af, #00c6ff);
@@ -149,12 +150,12 @@
                         </li>
                         {%if isMyProfile %}
                         <li class="nav-item">
-                            <a class="nav-link" style="color: #0062cc !important;"  id="profile-tab" data-toggle="tab" href="#Rides" role="tab"
-                                aria-controls="profile" aria-selected="false">My Rides</a>
+                            <a class="nav-link" style="color: #0062cc !important;"  id="ride-tab" data-toggle="tab" href="#Rides" role="tab"
+                                aria-controls="ride" aria-selected="false">My Rides</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" style="color: #0062cc !important;" id="profile-tab" data-toggle="tab" href="#History" role="tab"
-                                aria-controls="profile" aria-selected="false">Rides History </a>
+                            <a class="nav-link" style="color: #0062cc !important;" id="history-tab" data-toggle="tab" href="#History" role="tab"
+                                aria-controls="history" aria-selected="false">Rides History </a>
                         </li>
                         {%endif%}
                     </ul>
@@ -181,6 +182,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <label>Gender</label>
+
                             </div>
                             <div class="col-md-6">
                                 <p>{{ user_profile.gender }}</p>
@@ -199,10 +201,10 @@
 
                     </div>
                     {%if isMyProfile %}
-                    <div class="tab-pane fade" id="Rides" role="tabpanel" aria-labelledby="profile-tab">
-
+                    <div class="tab-pane fade" id="Rides" role="tabpanel" aria-labelledby="ride-tab">
+	
                     </div>
-                    <div class="tab-pane fade" id="History" role="tabpanel" aria-labelledby="profile-tab">
+                    <div class="tab-pane fade" id="History" role="tabpanel" aria-labelledby="history-tab">
 
                     </div>
                     {%endif%}

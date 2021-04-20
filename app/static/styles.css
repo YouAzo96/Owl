@@ -35,14 +35,14 @@
             color: white;
             border: 1px solid transparent;
             border-radius: 5px;
-            margin-top: 0;
             padding: 3px;
+            margin-top: 0 !important;
         }
 
         #date {
             position: absolute;
             right: 0;
-            margin-right: 15px;
-            margin-top: 5px;
+			text-align:end;
+
         }
 		
