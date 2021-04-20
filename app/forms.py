@@ -60,19 +60,19 @@ class SchedulerForm(FlaskForm):
 
 
 class FilterForm(FlaskForm):
-    from_location = StringField('from Location', validators= [DataRequired()], render_kw={"placeholder": "From Location"})
-    to_location =  StringField('To Location', validators= [DataRequired()], render_kw={"placeholder": "To location"})
-    start_date=  DateField('Start Date' , format = '%Y-%m-%d', validators= [DataRequired()]) 
-    end_date=    DateField('End Date' , format = '%Y-%m-%d',validators= [DataRequired()] )
-    start_time=  TimeField ('Start Time',validators= [DataRequired()])
-    end_time=   TimeField ('End Time',validators= [DataRequired()])
+    from_location = StringField('From', validators= [DataRequired()], render_kw={"placeholder": "From Location"})
+    to_location =  StringField('To', validators= [DataRequired()], render_kw={"placeholder": "To location"})
+    start_date=  DateField('Start' , format = '%Y-%m-%d', validators= [DataRequired()]) 
+    end_date=    DateField('End' , format = '%Y-%m-%d',validators= [DataRequired()] )
+    start_time=  TimeField ('Start',validators= [DataRequired()])
+    end_time=   TimeField ('End',validators= [DataRequired()])
     interests = StringField('Interests', render_kw={"data-role":"tagsinput"})
-    submit = SubmitField('Filter')
+    submit = SubmitField('Filter',render_kw={"id":"submit-btn"})
 
 class EditProfileForm(FlaskForm):
     image= FileField(render_kw={"id":"file-input"})
-    major_id= SelectField('Major', validators= [DataRequired()], render_kw={"placeholder": "Major"})
-    address = StringField('Address', validators= [DataRequired()], render_kw={"placeholder": "Address"})
+    major_id= SelectField('Major', validators= [DataRequired()], render_kw={"onchange":"changeSelected()","placeholder": "Major","style":"width:100%"})
+    address = StringField('Address', validators= [DataRequired()], render_kw={"placeholder": "Address","style":"width:100%"})
     submit = SubmitField('Update')
     def __init__(self, *args,**kwargs):
          super(EditProfileForm, self).__init__(*args,**kwargs)

@@ -145,19 +145,8 @@ def delete_announcement(ann_id):
     db.session.delete(ann)
     db.session.commit()
     session['alert']='Announcement Deleted!'
-
-def SendToken(email):
-    try:
-        token = generate_confirmation_token(email)
-        confirm_url = url_for('confirm_email', token=token, _external=True)
-        html = render_template('confirmationtest.html', confirm_url=confirm_url)
-        subject = "Please confirm your email"
-        send_email(email, subject, html)
-        session['alert']= "Confirmation Email Sent. Check your email."
-        return True
-    except:
-        session['alert']= "Confirmation Email NOT Sent. Check with your administrator."
-        return False
+    return redirect(url_for('index'))
+        
 @app.route('/Send_Token/<email>')
 @login_required
 def send_token(email):
@@ -378,8 +367,9 @@ def joinride(ride_id):
 def editprofile():
     user = current_user
     form=EditProfileForm()
+    form.major_id.default= user.major_id
     if form.validate_on_submit():
-        print('hi',file=sys.stderr)
+        print('Major: '+ form.major_id.data,file=sys.stderr)
         address = form.address.data
         major_id= form.major_id.data
         form.major_id.process_data(user.major_id)
@@ -393,6 +383,7 @@ def editprofile():
         user.major_id = major_id 
         user.address = address
         db.session.commit()
+        session['alert']="Profile Updated!"
         return redirect(url_for('viewprofile'))
     return render_template('editprofile.html', form=form, user=user,user_profile=user)
 
@@ -410,6 +401,7 @@ def change_password():
             if new_password == confirm_password:
                 user.set_password(new_password)
                 db.session.commit()
+                session['alert']="Password Changed!"
                 return redirect(url_for('index'))
             else:
                return render_template('changepassword.html', form=form, pass_not_match=True, user=user) 
@@ -417,3 +409,17 @@ def change_password():
             return render_template('changepassword.html', form=form, invalid_pass=True, user=user) 
 
     return render_template('changepassword.html', form=form, user=user) 
+
+
+def SendToken(email):
+    try:
+        token = generate_confirmation_token(email)
+        confirm_url = url_for('confirm_email', token=token, _external=True)
+        html = render_template('confirmationtest.html', confirm_url=confirm_url)
+        subject = "Please confirm your email"
+        send_email(email, subject, html)
+        session['alert']= "Confirmation Email Sent. Check your email."
+        return True
+    except:
+        session['alert']= "Confirmation Email NOT Sent. Check with your administrator."
+        return False

@@ -16,7 +16,7 @@ class User (UserMixin, db.Model):
     major_id = db.Column (db.Integer, sqlalchemy.ForeignKey('major.major_id'))
     gender = db.Column (db.String (10))
     confirmed = db.Column(db.Boolean, nullable=False, default=False)
-    image = db.Column (db.String (50), nullable=True,default='NULL')
+    image = db.Column (db.String (200), nullable=True,default='NULL')
     password_hash = db.Column(db.String(256))
  
     def get_id(self):
