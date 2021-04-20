@@ -1,15 +1,9 @@
 from app import app
-<<<<<<< HEAD
 from flask import render_template, redirect, url_for, flash,request,session
 from flask_login import login_user, logout_user, login_required, current_user,LoginManager
-from app.forms import RegistrationForm,  LoginForm,BanForm,AddAnnouncement, SchedulerForm,FilterForm
-=======
-from app.forms import RegistrationForm,  LoginForm,BanForm,AddAnnouncement, SchedulerForm,ChangePasswordForm,EditProfileForm
-from flask import render_template, redirect, url_for, flash,request,session
-from flask_login import login_user, logout_user, login_required, current_user,LoginManager
+from app.forms import RegistrationForm,  LoginForm,BanForm,AddAnnouncement, SchedulerForm,ChangePasswordForm,EditProfileForm,FilterForm
 from app.email import send_email
 from app.token import generate_confirmation_token, confirm_token
->>>>>>> origin/master
 from app import db
 from sqlalchemy import update, func
 from werkzeug.utils import secure_filename
@@ -19,12 +13,7 @@ import sys
 import os
 from sqlalchemy_filters import apply_filters
 import pdb, pprint
-<<<<<<< HEAD
-=======
 
-
-
->>>>>>> origin/master
 @app.route('/', methods=['GET','POST'])
 def index():
     if session.get('alert'):
@@ -79,20 +68,17 @@ def login():
         if user.active:
             if user.check_password(form.password.data):
                 login_user(user)
-<<<<<<< HEAD
                 session['alert']= 'Welcome '+user.first_name
                 if  request.args:
                     if request.args['next']:
                         next_url = request.args['next']
                     return redirect(next_url)
                 return redirect(url_for('index'))
-=======
                 if user.confirmed:
                     return redirect(url_for('index'))
                 else:
                     SendToken(user.email)    
                     return render_template('unconfirmed.html', user=user)
->>>>>>> origin/master
             else:
                 return render_template('login.html', form=form, wrong_pass=True)    
         else:
@@ -149,7 +135,6 @@ def signup():
         return redirect(url_for('login'))
     return render_template('register.html', title='SignUp', form=form)
 
-<<<<<<< HEAD
 
 @app.route('/dn/<ann_id>')
 @login_required
@@ -160,7 +145,7 @@ def delete_announcement(ann_id):
     db.session.delete(ann)
     db.session.commit()
     session['alert']='Announcement Deleted!'
-=======
+
 def SendToken(email):
     try:
         token = generate_confirmation_token(email)
@@ -213,7 +198,6 @@ def confirm_email(token):
     db.session.add(user)
     db.session.commit()
     Notifications(user.email,"Thank You For Signing up to OWLPOOL. We Wish You have a safe Journey.")
->>>>>>> origin/master
     return redirect(url_for('index'))
 
 @app.route('/profile', defaults={'user_id' : None})
@@ -387,10 +371,6 @@ def joinride(ride_id):
     request = Requests(ride_id=ride_id, requester=current_user.user_id)
     db.session.add(request)
     db.session.commit()
-    
-<<<<<<< HEAD
-    return redirect('/profile#myrequests')
-=======
     return redirect(url_for('profilepage.html#myrequests'))
 
 @app.route('/edit_profile',methods=['GET', 'POST'])
@@ -437,4 +417,3 @@ def change_password():
             return render_template('changepassword.html', form=form, invalid_pass=True, user=user) 
 
     return render_template('changepassword.html', form=form, user=user) 
->>>>>>> origin/master
