@@ -1,7 +1,15 @@
 from app import app
+<<<<<<< HEAD
 from flask import render_template, redirect, url_for, flash,request,session
 from flask_login import login_user, logout_user, login_required, current_user,LoginManager
 from app.forms import RegistrationForm,  LoginForm,BanForm,AddAnnouncement, SchedulerForm,FilterForm
+=======
+from app.forms import RegistrationForm,  LoginForm,BanForm,AddAnnouncement, SchedulerForm,ChangePasswordForm,EditProfileForm
+from flask import render_template, redirect, url_for, flash,request,session
+from flask_login import login_user, logout_user, login_required, current_user,LoginManager
+from app.email import send_email
+from app.token import generate_confirmation_token, confirm_token
+>>>>>>> origin/master
 from app import db
 from sqlalchemy import update, func
 from werkzeug.utils import secure_filename
@@ -11,6 +19,12 @@ import sys
 import os
 from sqlalchemy_filters import apply_filters
 import pdb, pprint
+<<<<<<< HEAD
+=======
+
+
+
+>>>>>>> origin/master
 @app.route('/', methods=['GET','POST'])
 def index():
     if session.get('alert'):
@@ -65,18 +79,26 @@ def login():
         if user.active:
             if user.check_password(form.password.data):
                 login_user(user)
+<<<<<<< HEAD
                 session['alert']= 'Welcome '+user.first_name
                 if  request.args:
                     if request.args['next']:
                         next_url = request.args['next']
                     return redirect(next_url)
                 return redirect(url_for('index'))
+=======
+                if user.confirmed:
+                    return redirect(url_for('index'))
+                else:
+                    SendToken(user.email)    
+                    return render_template('unconfirmed.html', user=user)
+>>>>>>> origin/master
             else:
                 return render_template('login.html', form=form, wrong_pass=True)    
         else:
             return render_template('login.html', form=form, not_active=True) 
     return render_template('login.html', form=form)
-
+    
 
 @app.route('/logout')
 def logout():
@@ -99,6 +121,7 @@ def signup():
         gender = form.gender.data
         major_id= form.major_id.data
         filename = False
+        confirmed=False
         image = request.files['image']
         if form.password.data != form.password2.data:
             return render_template('register.html', title='SignUp', form=form, invalid_password=True)
@@ -110,19 +133,23 @@ def signup():
         
         # Create a  record to store in the DB
         if filename is not False:
-            u = User(first_name=firstname, last_name=lastname,email=email,image=image.filename,address=address,gender=gender,major_id=major_id,active=True,user_type='user' )
+            u = User(first_name=firstname, last_name=lastname,email=email,image=image.filename,address=address,gender=gender,major_id=major_id,active=True,user_type='user' ,confirmed=confrimed)
             u.set_password(form.password.data)
             image.save(filename)
         else:
-            u = User(first_name=firstname, last_name=lastname,email=email,image='',address=address,gender=gender,major_id=major_id,active=True,user_type='user' )
+            u = User(first_name=firstname, last_name=lastname,email=email,image='',address=address,gender=gender,major_id=major_id,active=True,user_type='user',confirmed=False )
+
             u.set_password(form.password.data)
         db.session.add(u)
         db.session.commit()
 
-        login_user(u)
-        return redirect(url_for('index'))
+        SendToken(u.email)
+
+        
+        return redirect(url_for('login'))
     return render_template('register.html', title='SignUp', form=form)
 
+<<<<<<< HEAD
 
 @app.route('/dn/<ann_id>')
 @login_required
@@ -133,6 +160,60 @@ def delete_announcement(ann_id):
     db.session.delete(ann)
     db.session.commit()
     session['alert']='Announcement Deleted!'
+=======
+def SendToken(email):
+    try:
+        token = generate_confirmation_token(email)
+        confirm_url = url_for('confirm_email', token=token, _external=True)
+        html = render_template('confirmationtest.html', confirm_url=confirm_url)
+        subject = "Please confirm your email"
+        send_email(email, subject, html)
+        session['alert']= "Confirmation Email Sent. Check your email."
+        return True
+    except:
+        session['alert']= "Confirmation Email NOT Sent. Check with your administrator."
+        return False
+@app.route('/Send_Token/<email>')
+@login_required
+def send_token(email):
+    if email is not None:
+        SendToken(email)
+        return render_template('unconfirmed.html', user=current_user)
+    else:
+        return redirect(url_for('index'))
+    
+def Notifications(email,message):
+    try:
+        html=render_template('Notifications.html',message=message )
+        subject= "OWLPOOL NOTIFICATION"
+        send_email(email, subject, html)
+        session['alert']= "Email Sent"
+    except:
+        session['alert']= "Email not Sent"
+        return False
+    return True
+
+@app.route('/uploads/<filename>')
+def send_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+        
+@app.route('/confirm')
+@app.route('/confirm/<token>')
+@login_required
+def confirm_email(token):
+    if token is None:
+        return redirect(url_for('logout'))
+    try:
+        email = confirm_token(token)
+    except:
+        return redirect(url_for('logout'))
+    
+    user = db.session.query(User).filter_by(email = email).first()
+    user.confirmed = True
+    db.session.add(user)
+    db.session.commit()
+    Notifications(user.email,"Thank You For Signing up to OWLPOOL. We Wish You have a safe Journey.")
+>>>>>>> origin/master
     return redirect(url_for('index'))
 
 @app.route('/profile', defaults={'user_id' : None})
@@ -143,6 +224,7 @@ def viewprofile(user_id):
         
     if user_id is None:
         user_profile=user =db.session.query(User).filter_by(user_id=current_user.user_id).first()
+
     elif user_id is not None and current_user.is_anonymous:
         user_profile =db.session.query(User).filter_by(user_id=user_id).first()
         if user_profile.active == False:
@@ -186,8 +268,9 @@ def admin():
     if   not current_user.is_authenticated:
         return redirect(url_for('login'));  
     if not is_admin():
-        return redirect(url_for('index'));  
+        return render_template('login.html');     
     return render_template('admin.html',user=current_user)
+
 
 
 @app.route('/scheduler', methods=['GET','POST'])
@@ -305,4 +388,53 @@ def joinride(ride_id):
     db.session.add(request)
     db.session.commit()
     
+<<<<<<< HEAD
     return redirect('/profile#myrequests')
+=======
+    return redirect(url_for('profilepage.html#myrequests'))
+
+@app.route('/edit_profile',methods=['GET', 'POST'])
+@login_required
+def editprofile():
+    user = current_user
+    form=EditProfileForm()
+    if form.validate_on_submit():
+        print('hi',file=sys.stderr)
+        address = form.address.data
+        major_id= form.major_id.data
+        form.major_id.process_data(user.major_id)
+        filename = False
+        image = request.files['image']
+        if image.filename != '':
+            filename= os.path.join(app.config['UPLOAD_FOLDER'],image.filename)
+        if filename is not False: 
+            user.image = image.filename
+            image.save(filename)
+        user.major_id = major_id 
+        user.address = address
+        db.session.commit()
+        return redirect(url_for('viewprofile'))
+    return render_template('editprofile.html', form=form, user=user,user_profile=user)
+
+
+@app.route('/change_password',methods=['GET', 'POST'])
+@login_required
+def change_password():
+    user=current_user
+    form= ChangePasswordForm()
+    if form.validate_on_submit():
+        old_password = form.current_password.data
+        new_password = form.password.data
+        confirm_password = form.password2.data
+        if user.check_password(old_password):
+            if new_password == confirm_password:
+                user.set_password(new_password)
+                db.session.commit()
+                return redirect(url_for('index'))
+            else:
+               return render_template('changepassword.html', form=form, pass_not_match=True, user=user) 
+        else:
+            return render_template('changepassword.html', form=form, invalid_pass=True, user=user) 
+
+    return render_template('changepassword.html', form=form, user=user) 
+>>>>>>> origin/master

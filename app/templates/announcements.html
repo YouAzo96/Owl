@@ -11,6 +11,7 @@ visibility:hidden;
     <div class="announcement">
         <div class="row" style="display: flex; margin:auto">
         	{% if announcement.flag =='Warning!' -%}
+
             <p class="flag col-md-3 col-4 col-sm-3 col-lg-3" style="background-color:#FB9B03 ">{{announcement.flag}}</p>
         	{% elif announcement.flag =='Notice' -%}
 			<p class="flag col-md-3 col-4 col-sm-3 col-lg-3" style="background-color:#1F76B1 ">{{announcement.flag}}</p>
