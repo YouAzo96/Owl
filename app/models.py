@@ -15,6 +15,7 @@ class User (UserMixin, db.Model):
     email = db.Column (db.String(100), unique=True)
     major_id = db.Column (db.Integer, sqlalchemy.ForeignKey('major.major_id'))
     gender = db.Column (db.String (10))
+    confirmed = db.Column(db.Boolean, nullable=False, default=False)
     image = db.Column (db.String (50), nullable=True,default='NULL')
     password_hash = db.Column(db.String(256))
  
@@ -24,6 +25,7 @@ class User (UserMixin, db.Model):
         self.password_hash = generate_password_hash(password)
     def check_password (self, password):
         return check_password_hash(self.password_hash,password)
+   
 
 @login.user_loader
 def loader_user(user_id):

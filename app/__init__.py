@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_bootstrap import Bootstrap
@@ -17,7 +18,27 @@ DB_NAME = os.environ.get('DATABASE_NAME')
 
 app = Flask(__name__)
 Bootstrap(app)
+login_manager = LoginManager()
 app.config['SECRET_KEY'] = 'owlpool'
+app.config['SECURITY_PASSWORD_SALT']='my_precious_two'
+#app.config['Debug']=False    ###might not need this###
+app.config['BCRYPT_LOG_ROUNDS']=13
+app.config['WTF_CRSF_ENABLED']=True
+app.config['DEBUG_TB_ENABLED']=False
+app.config['DEBUG_TB_INTERCEPT_REDIRECTS']=False
+
+# mail Settings
+app.config['MAIL_SERVER']='smtp.googlemail.com'
+app.config['MAIL_PORT']=465
+app.config['MAIL_USE_TLS']=False
+app.config['MAIL_USE_SSL']=True
+
+# gmail authentication
+app.config['MAIL_USERNAME']='csc330.spring@gmail.com'
+app.config['MAIL_PASSWORD']= 'NecroMan93'
+
+#aacount
+app.config['MAIL_DEFAULT_SENDER']= 'csc330.spring@gmail.com'
 
 # Add DB config
 app.config['SQLALCHEMY_DATABASE_URI'] = ('mysql+pymysql://'
@@ -35,7 +56,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 db = SQLAlchemy(app)
 login = LoginManager(app)
 login.login_view ='login'
-
+mail =Mail(app)
 from app import routes, models
 from app.models import User, Announcement
 
