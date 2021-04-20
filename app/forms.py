@@ -4,7 +4,7 @@ from wtforms import validators, StringField,SelectField, IntegerField,TextAreaFi
 from wtforms.validators import DataRequired, ValidationError, Email, EqualTo
 from app.models import User, Major
 from wtforms_components  import DateField, TimeField
-from flask_wtf.html5 import IntegerRangeField
+from wtforms.fields.html5 import IntegerRangeField
 
 class RegistrationForm(FlaskForm):
     first_name = StringField('FirstName', validators= [DataRequired()], render_kw={"placeholder": "First Name"})
@@ -55,3 +55,17 @@ class SchedulerForm(FlaskForm):
      
     submit = SubmitField('Submit')
 
+class EditProfileForm(FlaskForm):
+    image= FileField(render_kw={"id":"file-input"})
+    major_id= SelectField('Major', validators= [DataRequired()], render_kw={"placeholder": "Major"})
+    address = StringField('Address', validators= [DataRequired()], render_kw={"placeholder": "Address"})
+    submit = SubmitField('Update')
+    def __init__(self, *args,**kwargs):
+         super(EditProfileForm, self).__init__(*args,**kwargs)
+         self.major_id.choices=[(c.major_id,c.major_name) for c in Major.query.all()]
+    
+class ChangePasswordForm(FlaskForm):
+    password = PasswordField('Password', validators=[DataRequired()], render_kw={"placeholder": "New Password"})
+    password2= PasswordField('Repeat Password', validators=[DataRequired()], render_kw={"placeholder": "Verify Password"})
+    current_password= PasswordField('Password', validators=[DataRequired()], render_kw={"placeholder": "Current Password"})
+    submit = SubmitField('Save')

@@ -1,10 +1,10 @@
 from app import app
+from app.forms import RegistrationForm,  LoginForm,BanForm,AddAnnouncement, SchedulerForm,ChangePasswordForm,EditProfileForm
 from flask import render_template, redirect, url_for, flash,request,session
 from flask_login import login_user, logout_user, login_required, current_user,LoginManager
 from app.email import send_email
 from app.token import generate_confirmation_token, confirm_token
 from app import db
-from app.forms import RegistrationForm,  LoginForm,BanForm,AddAnnouncement, SchedulerForm
 from sqlalchemy import update, func
 from werkzeug.utils import secure_filename
 from app.models import User, Major, User_Intrest, Rating, Intrest,Reports,Announcement, Requests, Ride, Ride_Passengers
@@ -332,3 +332,48 @@ def joinride(ride_id):
     db.session.commit()
     
     return redirect(url_for('profilepage.html#myrequests'))
+
+@app.route('/edit_profile',methods=['GET', 'POST'])
+@login_required
+def editprofile():
+    user = current_user
+    form=EditProfileForm()
+    if form.validate_on_submit():
+        print('hi',file=sys.stderr)
+        address = form.address.data
+        major_id= form.major_id.data
+        form.major_id.process_data(user.major_id)
+        filename = False
+        image = request.files['image']
+        if image.filename != '':
+            filename= os.path.join(app.config['UPLOAD_FOLDER'],image.filename)
+        if filename is not False: 
+            user.image = image.filename
+            image.save(filename)
+        user.major_id = major_id 
+        user.address = address
+        db.session.commit()
+        return redirect(url_for('viewprofile'))
+    return render_template('editprofile.html', form=form, user=user,user_profile=user)
+
+
+@app.route('/change_password',methods=['GET', 'POST'])
+@login_required
+def change_password():
+    user=current_user
+    form= ChangePasswordForm()
+    if form.validate_on_submit():
+        old_password = form.current_password.data
+        new_password = form.password.data
+        confirm_password = form.password2.data
+        if user.check_password(old_password):
+            if new_password == confirm_password:
+                user.set_password(new_password)
+                db.session.commit()
+                return redirect(url_for('index'))
+            else:
+               return render_template('changepassword.html', form=form, pass_not_match=True, user=user) 
+        else:
+            return render_template('changepassword.html', form=form, invalid_pass=True, user=user) 
+
+    return render_template('changepassword.html', form=form, user=user) 
