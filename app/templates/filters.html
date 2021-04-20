@@ -1,0 +1,74 @@
+<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.css" integrity="sha512-xmGTNt20S0t62wHLmQec2DauG9T+owP9e6VU8GigI0anN7OXLip9i7IwEhelasml2osdxX71XcYm6BQunTQeQg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput-typeahead.css" integrity="sha512-wu4jn1tktzX0SHl5qNLDtx1uRPSj+pm9dDgqsrYUS16AqwzfdEmh1JR8IQL7h+phL/EAHpbBkISl5HXiZqxBlQ==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js" integrity="sha512-7oYXeK0OxTFxndh0erL8FsjGvrl2VMDor6fVqzlLGfwOQQqTbYsGPv4ZZ15QHfSk80doyaM0ZJdvkyDcVO7KFA==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.min.js" integrity="sha512-9UR1ynHntZdqHnwXKTaOm1s6V9fExqejKvg5XMawEMToW4sSw+3jtLrYfZPijvnwnnE8Uol1O9BcAskoxgec+g==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput-angular.js" integrity="sha512-AmgOsTMLg1jD0U5NIv+QGWNLEg9DODYIExq5fPXXr8qamvRyHaxScLtGd88BDa0VP+XAKie9zAHyGaBxN7Us2g==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput-angular.min.js" integrity="sha512-KT0oYlhnDf0XQfjuCS/QIw4sjTHdkefv8rOJY5HHdNEZ6AmOh1DW/ZdSqpipe+2AEXym5D0khNu95Mtmw9VNKg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.js" integrity="sha512-VvWznBcyBJK71YKEKDMpZ0pCVxjNuKwApp4zLF3ul+CiflQi6aIJR+aZCP/qWsoFBA28avL5T5HA+RE+zrGQYg==" crossorigin="anonymous"></script>
+<style>
+
+.label-info {
+    background-color: #5bc0de;
+    border:1px transparent;
+    border-radius: 5px;
+}
+</style>
+
+<form action="" method="post" novalidate>
+{{ form.hidden_tag() }}
+
+	<div class="form-floating row">
+		<div class=" col-md-4">
+			<label>{{form.from_location.label}} </label>
+			<p>{{form.from_location(size=20)}}</p>
+		</div>
+		<div class=" col-md-4">
+			<label>{{form.start_date.label}} </label>
+			<p>{{form.start_date(size=20)}}</p>
+		</div>
+		<div class=" col-md-4">
+			<label>{{form.end_date.label}} </label>
+			<p>{{form.end_date(size=20)}}</p>
+		</div>
+
+	</div>
+	<div class="form-floating row">
+		<div class=" col-md-4">
+			<label>{{form.to_location.label}} </label>
+			<p>{{form.to_location(size=20)}}</p>
+		</div>
+		<div class=" col-md-4">
+			<label>{{form.start_time.label}} </label>
+			<p>{{form.start_time(size=20)}}</p>
+		</div>
+		<div class=" col-md-4">
+			<label>{{form.end_time.label}} </label>
+			<p>{{form.end_time(size=20)}}</p>
+		</div>
+	</div>
+	<div class="form-floating row">
+		<div data-role="tagsinput" class="bootstrap-tagsinput">
+			<label>{{form.interests.label}} </label>
+			{{form.interests(size=20)}}
+		</div>
+	
+	</div>
+	<div class="row" style="text-align:center">
+		<div class="  btn btn-lg btn-primary">
+			<p>{{ form.submit() }}</p>
+		</div>
+	</div>
+	</form>
+
+
+<script>
+$(window).on('load',function(){
+    $('#passengers').html('&nbsp 1');
+});
+$(document).on('input', '#max_passengers', function() {
+    $('#passengers').html('&nbsp'+ $(this).val() );
+});
+</script> 

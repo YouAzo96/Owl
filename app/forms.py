@@ -4,6 +4,10 @@ from wtforms import validators, StringField,SelectField, IntegerField,TextAreaFi
 from wtforms.validators import DataRequired, ValidationError, Email, EqualTo
 from app.models import User, Major
 from wtforms_components  import DateField, TimeField
+<<<<<<< HEAD
+
+=======
+>>>>>>> origin/master
 from wtforms.fields.html5 import IntegerRangeField
 
 class RegistrationForm(FlaskForm):
@@ -25,6 +29,12 @@ class RegistrationForm(FlaskForm):
     def __init__(self, *args,**kwargs):
         super(RegistrationForm, self).__init__(*args,**kwargs)
         self.major_id.choices=[(c.major_id,c.major_name) for c in Major.query.all()]
+    def clean_email(self):
+            data = self.email.data
+            if "@southernct.edu" not in data:   # any check you need
+                return False
+            return data
+    
 
 
 class LoginForm(FlaskForm):
@@ -43,8 +53,6 @@ class AddAnnouncement(FlaskForm):
     submit = SubmitField('Post')
 
 class SchedulerForm(FlaskForm):
-    
-    
     to_location =  StringField('To Location', validators= [DataRequired()], render_kw={"placeholder": "To location"})
     from_location = StringField('from Location', validators= [DataRequired()], render_kw={"placeholder": "From Location"})
     start_date=  DateField('Start Date' , format = '%Y-%m-%d', validators= [DataRequired()]) 
@@ -52,9 +60,20 @@ class SchedulerForm(FlaskForm):
     start_time=  TimeField ('Start Time',validators= [DataRequired()])
     end_time=   TimeField ('End Time',validators= [DataRequired()])
     max_passengers= IntegerRangeField ('Passengers', render_kw={"min":"1", "max": "7","value":"1"})
-     
     submit = SubmitField('Submit')
 
+<<<<<<< HEAD
+class FilterForm(FlaskForm):
+    from_location = StringField('from Location', validators= [DataRequired()], render_kw={"placeholder": "From Location"})
+    to_location =  StringField('To Location', validators= [DataRequired()], render_kw={"placeholder": "To location"})
+    start_date=  DateField('Start Date' , format = '%Y-%m-%d', validators= [DataRequired()]) 
+    end_date=    DateField('End Date' , format = '%Y-%m-%d',validators= [DataRequired()] )
+    start_time=  TimeField ('Start Time',validators= [DataRequired()])
+    end_time=   TimeField ('End Time',validators= [DataRequired()])
+    interests = StringField('Interests', render_kw={"data-role":"tagsinput"})
+    submit = SubmitField('Filter')
+
+=======
 class EditProfileForm(FlaskForm):
     image= FileField(render_kw={"id":"file-input"})
     major_id= SelectField('Major', validators= [DataRequired()], render_kw={"placeholder": "Major"})
@@ -69,3 +88,4 @@ class ChangePasswordForm(FlaskForm):
     password2= PasswordField('Repeat Password', validators=[DataRequired()], render_kw={"placeholder": "Verify Password"})
     current_password= PasswordField('Password', validators=[DataRequired()], render_kw={"placeholder": "Current Password"})
     submit = SubmitField('Save')
+>>>>>>> origin/master

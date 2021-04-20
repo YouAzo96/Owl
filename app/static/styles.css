@@ -42,6 +42,7 @@
         #date {
             position: absolute;
             right: 0;
+            margin-right:15px;
 			text-align:end;
 
         }
