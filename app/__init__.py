@@ -45,7 +45,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = ('mysql+pymysql://'
                                         + USERNAME
                                         + ':'
                                         + PASSWORD
-                                        + '@db4free.net/'
+                                        + '@sql5.freemysqlhosting.net/'
                                         + DB_NAME)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"]= True
 

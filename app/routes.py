@@ -222,6 +222,42 @@ def viewprofile(user_id):
         interestNames = db.session.query(Intrest.name).filter(Intrest.intrest_id.in_(interests_ids)).all()
         major = db.session.query(Major).filter_by(major_id=user.major_id).first() 
         ratings = db.session.query(Rating).filter_by(reciver_id = user.user_id).all()
+
+        driver_history = db.session.query(Ride).filter_by(driver_id=user.user_id). \
+            filter_by(completed = True).all()
+        passenger_history = db.session.query(Ride, Ride_Passengers).filter_by(completed = True). \
+            join(Ride_Passengers).filter_by(passenger_id=user.user_id).all()
+        
+        driver_active = db.session.query(Ride).filter_by(driver_id=user.user_id). \
+            filter_by(completed = False).all()
+        passenger_active = db.session.query(Ride, Ride_Passengers).filter_by(completed = False). \
+            join(Ride_Passengers).filter_by(passenger_id=user.user_id).all()
+        
+                #need to know the number of rows of passengers for a given ride
+
+        ids = db.session.query(Ride.ride_id).filter_by(driver_id=current_user.user_id).all()
+        list1 = []
+        for x in ids:
+            list1.append(x.ride_id)
+        print(list1, file=sys.stderr)
+        request_join = db.session.query(User, Requests, Ride).select_from(User). \
+                join(Requests, User.user_id == Requests.requester).join(Ride, Requests.ride_id == Ride.ride_id). \
+                    filter(Requests.ride_id.in_(list1)).all()
+        
+
+        
+
+        
+            
+
+
+        
+        #request_join = db.session.query(User,Ride,Requests).select_from(User).join(Ride).join(Requests). \
+         #   filter(Ride.driver_id == current_user.user_id).all()
+        request_sent = db.session.query(User,Ride,Requests).select_from(User).join(Ride).join(Requests). \
+            filter(Requests.requester == current_user.user_id).all()
+
+        # query may not be  correct
         total=0
         for rating in ratings:
             total += rating.stars
@@ -229,7 +265,9 @@ def viewprofile(user_id):
             overall = total /len(ratings)
         else:
             overall = "."
-        return render_template('profilepage.html',isAdmin = is_admin(),isMyProfile=featuresShow,user=user,user_profile=user_profile,rating=overall,major=major,interests=interestNames)
+        return render_template('profilepage.html',isAdmin = is_admin(),isMyProfile=featuresShow,user=user,user_profile=user_profile,rating=overall,major=major,interests=interestNames, \
+            driver_history=driver_history, passenger_history=passenger_history, driver_active=driver_active, passenger_active=passenger_active, \
+                request_join=request_join, request_sent=request_sent)
     else:
         return redirect(url_for('index'))
 
@@ -348,7 +386,6 @@ def ridebrowser():
     drivers = db.session.query(User.user_id,User.first_name, User.last_name, User.image).filter(User.user_id.in_(drivers_ids)).all()
     return render_template('rides.html',form=form,user=user,drivers = drivers, rides = rides, num_of_passengers = num_of_passengers)
 
-
 @app.route('/join/<ride_id>', methods=['GET','POST'])
 @login_required
 def joinride(ride_id):
@@ -423,3 +460,123 @@ def SendToken(email):
     except:
         session['alert']= "Confirmation Email NOT Sent. Check with your administrator."
         return False
+
+@app.route('/accept_request/<ride_id>/<requester>', methods=['GET', 'POST']) # delete field in requests table, add to passenger table
+@login_required
+def acceptride(ride_id, requester):
+    if ride_id is None or ride_id=='':
+        if requester is None or requester=='':
+            return redirect(url_for('index'))
+    elif ride_id is not None and requester is None or requester =='':
+        return redirect(url_for('index'))
+    elif current_user.is_anonymous:
+        return redirect(url_for('login'))
+
+    request_delete = db.session.query(Requests).filter_by(ride_id=ride_id).filter_by(requester=requester).first()
+
+    if request_delete:
+        db.session.delete(request_delete)
+        db.session.commit()
+
+        new = Ride_Passengers(ride_id=ride_id, passenger_id=requester)
+        db.session.add(new)
+        db.session.commit()
+
+    else:
+        return redirect(url_for('viewprofile'))
+    return redirect('profilepage.html#Requests')
+
+@app.route('/reject_request/<ride_id>/<requester>', methods=['GET', 'POST']) # delete field in requests table only
+@login_required
+def rejectride(ride_id, requester):
+    if ride_id is None or ride_id=='':
+        if requester is None or requester=='':
+            return redirect(url_for('index'))
+    elif ride_id is not None and requester is None or requester =='':
+        return redirect(url_for('index'))
+    elif current_user.is_anonymous:
+        return redirect(url_for('login'))
+
+    request_delete = db.session.query(Requests).filter_by(ride_id=ride_id).filter_by(requester=requester).first()
+
+    if request_delete:
+        db.session.delete(request_delete)
+        db.session.commit()
+
+    else:
+        return redirect(url_for('viewprofile'))
+    return redirect('profilepage.html#Requests')   
+
+
+
+    
+@app.route('/cancel_driver/<ride_id>', methods=['GET', 'POST'])
+@login_required
+def cancelride(ride_id): # may need another field in ride called "canceled"
+    if ride_id is None or ride_id=='':
+        return redirect(url_for('index'))
+    elif current_user.is_anonymous:
+        return redirect(url_for('login'))
+        
+    selected_ride = db.session.query(Ride).filter_by(ride_id=ride_id). \
+        filter_by(driver_id=current_user.user_id).first() #checks if being called by driver of ride
+    
+    if selected_ride:
+
+        del_pas = db.session.query(Ride_Passengers).filter_by(ride_id=ride_id).all()
+        del_requests = db.session.query(Requests).filter_by(ride_id=ride_id).all()
+        if del_pas:
+            for p in del_pas:
+                db.session.delete(p)
+                db.session.commit() # deletes all records of passengers for ride.
+            
+        if del_requests:
+            for r in del_requests:
+                db.session.delete(r)
+                db.session.commit()
+        
+        db.session.delete(selected_ride)
+        db.session.commit() # delete all records of requests for ride.
+
+        
+        
+
+    else:
+        return redirect(url_for('viewprofile')) # user cant del record if not driver
+    return redirect('profilepage.html#Rides')
+
+@app.route('/cancel_passenger/<ride_id>')
+@login_required
+def cancelride2(ride_id):
+    if ride_id is None or ride_id=='':
+        return redirect(url_for('index'))
+    elif current_user.is_anonymous:
+        return redirect(url_for('login'))
+        
+    selected_ride = db.session.query(Ride_Passengers).filter_by(ride_id=ride_id). \
+        filter_by(passenger_id=current_user.user_id).first()
+
+    if selected_ride:
+    
+        db.session.delete(selected_ride)
+        db.session.commit()
+
+    else:
+        return redirect(url_for('viewprofile')) # user cant del record if not a passenger
+    return redirect('profilepage.html#Rides')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      

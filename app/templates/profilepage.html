@@ -157,6 +157,11 @@
                             <a class="nav-link" style="color: #0062cc !important;" id="history-tab" data-toggle="tab" href="#History" role="tab"
                                 aria-controls="history" aria-selected="false">Rides History </a>
                         </li>
+                        <li class="nav-item">
+                        	<a class="nav-link" style="color: #0062cc !important;" id="request-tab" data-toggle="tab" href="#Requests" role="tab"
+                        		aria-controls="request" aria-selected="false">Rides Requests </a>
+                        </li>
+                        
                         {%endif%}
                     </ul>
                 </div>
@@ -209,11 +214,154 @@
                     </div>
                     {%if isMyProfile %}
                     <div class="tab-pane fade" id="Rides" role="tabpanel" aria-labelledby="ride-tab">
-	
-                    </div>
-                    <div class="tab-pane fade" id="History" role="tabpanel" aria-labelledby="history-tab">
+						<div class="row">
+							<div class="col-md-6">
+								<label>Active Rides as Driver</label>
+							</div>
+							
+							<div class="col-md-6">
+								{% for ride in driver_active %}
+													    																   	
+								<p>From: {{ride.from_location}}</p>
+								<p>To: {{ride.to_location}}</p>
+								<p>Start Time: {{ride.start_time}}</p>
+							    <p>End Time: {{ride.end_time}}</p>
+								<p>Start Date: {{ride.start_date}}</p>
+								<p>End Date: {{ride.end_date}}</p>
+								<p><a href="/cancel_driver/{{ride.ride_id}}">Cancel?</a></p>
+								<hr />
+								{% endfor %}
+							
+						   </div>
 
+					    </div> <!-- end row div -->
+
+					    <br />
+					    <br />
+					    <hr />
+					    <br />
+					    <br />
+
+					    <div class="row">
+					    	<div class="col-md-6">
+					    		<label>Active Rides as Passenger</label>
+					    	</div>
+
+					    	<div class="col-md-6">
+					    								 	   	
+					    		{% for ride, ride_pas in passenger_active %}
+					    																   	
+					    		<p>From: {{ride.from_location}}</p>
+					    		<p>To: {{ride.to_location}}</p>
+					    		<p>Start Time: {{ride.start_time}}</p>
+					    		<p>End Time: {{ride.end_time}}</p>
+					    		<p>Start Date: {{ride.start_date}}</p>
+					    		<p>End Date: {{ride.end_date}}</p>
+					    		<p><a href="/cancel_passenger/{{ride.ride_id}}">Cancel?</a></p>
+					    		<hr />
+					    		{% endfor %}
+					    								
+					    	</div>          
+					   </div> <!-- end row div -->
+						   
+
+	
+                    </div> <!-- end rides -->
+
+
+
+
+                    
+                    <div class="tab-pane fade" id="History" role="tabpanel" aria-labelledby="history-tab">
+						<div class="row">
+							<div class="col-md-6">
+						    	<label>Rides as Driver</label>
+						    </div>
+
+						    <div class="col-md-6">
+						    	{% for ride in driver_history %}
+						    																   	
+						    	<p>From: {{ride.from_location}}</p>
+						     	<p>To: {{ride.to_location}}</p>
+						        <p>Start Time: {{ride.start_time}}</p>
+						        <p>End Time: {{ride.end_time}}</p>
+						    	<p>Start Date: {{ride.start_date}}</p>
+						    	<p>End Date: {{ride.end_date}}</p>
+						    	<hr />
+						    	{% endfor %}
+
+						    </div>
+					  </div> <!-- end row div -->	
+					  
+						    <br />
+						    <br />
+						    <hr />
+						  	<br />
+						  	<br />
+
+					<div class="row">
+						<div class="col-md-6">
+							<label>Rides as Passenger</label>
+						</div>
+							
+						<div class="col-md-6">
+							 	   	
+						{% for ride, ride_pas in passenger_history %}
+															   	
+						<p>From: {{ride.from_location}}</p>
+						<p>To: {{ride.to_location}}</p>
+						<p>Start Time: {{ride.start_time}}</p>
+						<p>End Time: {{ride.end_time}}</p>
+						<p>Start Date: {{ride.start_date}}</p>
+						<p>End Date: {{ride.end_date}}</p>
+						<hr />
+						{% endfor %}
+							
+						</div>          
+					</div> <!-- end row div -->
+                    </div> <!-- end history -->
+
+				<div class="tab-pane fade" id="Requests" role="tabpanel" aria-labelledby="request-tab">
+                	<div class="row">
+                    	<div class="col-md-6">
+                    		<label>Requests to Join My Rides</label>
+                    	</div>
+                    	<!-- testing -->
+                    <div class="col-md-6">
+                    {% for user,request,ride in request_join %}
+                    												    																   	
+                    <p>Name: {{user.first_name}} {{user.last_name}}</p>
+                    <p>Pick up: {{ride.from_location}}</p>
+                    <p>Drop off: {{ride.to_location}}</p>
+                    <p>Departure Time: {{ride.start_date}} {{ride.start_date}}</p>
+                    <p><a href="/accept_request/{{ride.ride_id}}/{{request.requester}}">Accept?</a></p>
+                    <p><a href="/reject_request/{{ride.ride_id}}/{{request.requester}}">Reject?</a></p>
+                    <hr />
+                    {% endfor %}
+                    						
                     </div>
+                    </div> <!-- end row div -->
+
+                    <div class="row">
+                    <div class="col-md-6">
+                    	<label>My Requests</label>
+                    </div>
+                   <!-- testing -->
+                   <div class="col-md-6">
+                   {% for user,ride,request in request_sent %}
+                                        												    																   	
+                   <p>Name: {{user.first_name}} {{user.last_name}}</p>
+                   <p>Pick up: {{ride.from_location}}</p>
+                   <p>Drop off: {{ride.to_location}}</p>
+                   <p>Departure Time: {{ride.start_date}} {{ride.start_date}}</p>
+                   <hr />
+                   {% endfor %}
+                                        						
+                   </div>
+                   </div> <!-- end row div -->	
+                  
+                    
+                </div> <!-- end requests div -->
                     {%endif%}
                 </div>
             </div>
