@@ -11,9 +11,15 @@ label{
     float:left;
     margin-right:15px;
 }
+form{
+	    border: 1px solid;
+    margin-top: 10px;
+    padding: 5px;
+}
+
 </style>
 
-<form action="" method="post" novalidate style="margin-top:10px">
+<form action="" method="post" novalidate >
 {{ form.hidden_tag() }}
 
 	<div class="form-floating row">
@@ -45,19 +51,16 @@ label{
 			<p>{{form.end_time(size=20)}}</p>
 		</div>
 		
-		</div>
+	</div>
 		<div  class="form-floating row">
-	<div class="col-md-6" style="left:40%">
+				<div class="col-md-6" style="left:40%">
 					<label for="submit-btn" style="cursor:pointer;text-align: center;" > <img src="https://img.icons8.com/nolan/96/filter.png"/></label>
 					<p hidden>{{ form.submit() }}</p>
+				</div>
+				<div class="col-md-6">
+					<a href="/rides" ><img src="https://img.icons8.com/nolan/96/clear-filters.png"/></a>			
+				</div>
 		</div>
-		<div class="col-md-6">
-							<a href="/rides" ><img src="https://img.icons8.com/nolan/96/clear-filters.png"/></a>
-						
-		</div>
-		</div>
-	
-	</div>
 
 	
 	</form>

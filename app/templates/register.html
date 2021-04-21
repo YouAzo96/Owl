@@ -13,7 +13,15 @@
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
     <style>
-      
+      #image{
+      	border : 1px solid #E9ECEF ;
+      	border-radius: 5px;
+      	background: #E9ECEF;
+      	padding:1px;
+      }
+      #image > button{
+      	all:unset;
+      }
       #major_id{
       	width:400px;
       }
@@ -47,7 +55,7 @@
     <p> User already exists. If that's your account log in<a href='/login'>  here</a>   </p>
       {% endif  %}
       {% if email_format%}
-      <p> Email format is invalid. make sure it's a southern.edu email.</p>
+      <p> Email format is invalid. make sure it's a southernct.edu email.</p>
       {%endif%}
 	 <div class="form-floating">
     <label for="floatingInput">Select an Image </label>

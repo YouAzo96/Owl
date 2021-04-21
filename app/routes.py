@@ -57,7 +57,7 @@ def is_admin():
 def login():
 
     # Authenticated users are redirected to home page.
-    if current_user.is_authenticated:
+    if current_user.is_authenticated and current_user.confirmed:
         return redirect(url_for('index'))
     form = LoginForm()
     if form.validate_on_submit():
@@ -67,17 +67,16 @@ def login():
             return render_template('login.html', form=form, user_not_found=True) 
         if user.active:
             if user.check_password(form.password.data):
-                login_user(user)
-                session['alert']= 'Welcome '+user.first_name
-                if  request.args:
-                    if request.args['next']:
-                        next_url = request.args['next']
-                    return redirect(next_url)
-                return redirect(url_for('index'))
                 if user.confirmed:
+                    login_user(user)
+                    session['alert']= 'Welcome '+user.first_name
+                    if  request.args:
+                        if request.args['next']:
+                            next_url = request.args['next']
+                            return redirect(next_url)
                     return redirect(url_for('index'))
                 else:
-                    SendToken(user.email)    
+                    login_user(user)
                     return render_template('unconfirmed.html', user=user)
             else:
                 return render_template('login.html', form=form, wrong_pass=True)    
@@ -119,7 +118,7 @@ def signup():
         
         # Create a  record to store in the DB
         if filename is not False:
-            u = User(first_name=firstname, last_name=lastname,email=email,image=image.filename,address=address,gender=gender,major_id=major_id,active=True,user_type='user' ,confirmed=confrimed)
+            u = User(first_name=firstname, last_name=lastname,email=email,image=image.filename,address=address,gender=gender,major_id=major_id,active=True,user_type='user' ,confirmed=confirmed)
             u.set_password(form.password.data)
             image.save(filename)
         else:
@@ -128,10 +127,7 @@ def signup():
             u.set_password(form.password.data)
         db.session.add(u)
         db.session.commit()
-
         SendToken(u.email)
-
-        
         return redirect(url_for('login'))
     return render_template('register.html', title='SignUp', form=form)
 
@@ -403,13 +399,10 @@ def joinride(ride_id):
 @login_required
 def editprofile():
     user = current_user
-    form=EditProfileForm()
-    form.major_id.default= user.major_id
+    form=EditProfileForm(major_id=user.major_id)
     if form.validate_on_submit():
-        print('Major: '+ form.major_id.data,file=sys.stderr)
         address = form.address.data
         major_id= form.major_id.data
-        form.major_id.process_data(user.major_id)
         filename = False
         image = request.files['image']
         if image.filename != '':

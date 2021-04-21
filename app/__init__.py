@@ -6,6 +6,8 @@ from flask_bootstrap import Bootstrap
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
 import os
+from sqlalchemy import create_engine
+from sqlalchemy_utils import database_exists, create_database
 
 
 # force loading of environment variables
@@ -48,12 +50,17 @@ app.config['SQLALCHEMY_DATABASE_URI'] = ('mysql+pymysql://'
                                         + '@sql5.freemysqlhosting.net/'
                                         + DB_NAME)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"]= True
+#engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'], echo=True)
+#if not database_exists(engine.url):
+#    create_database(engine.url)
 
+    
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER=os.path.join(APP_ROOT, 'static', 'images')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # Create database connection and associate it with the Flask application
 db = SQLAlchemy(app)
+
 login = LoginManager(app)
 login.login_view ='login'
 mail =Mail(app)
@@ -64,7 +71,7 @@ db.create_all()
 
 admin_check = User.query.filter_by(email='youssef@owl.edu').first()
 if admin_check is None:
-    admin = User(user_id=1,first_name='Youssef',last_name="Youssef",address='NULL', user_type='admin',major_id=1,email='youssef@owl.edu',gender='male',active=True)
+    admin = User(user_id=1,first_name='Youssef',last_name="Youssef",address='NULL',confirmed=True, user_type='admin',major_id=1,email='youssef@owl.edu',gender='male',active=True)
     admin.set_password('password')
     db.session.add(admin)
     

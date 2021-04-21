@@ -77,6 +77,7 @@ class EditProfileForm(FlaskForm):
     def __init__(self, *args,**kwargs):
          super(EditProfileForm, self).__init__(*args,**kwargs)
          self.major_id.choices=[(c.major_id,c.major_name) for c in Major.query.all()]
+
     
 class ChangePasswordForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()], render_kw={"placeholder": "New Password"})
