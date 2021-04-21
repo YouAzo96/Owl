@@ -6,15 +6,19 @@
 visibility:hidden;
 }
 #container{
-	min-height:100vh;
+	height:100vh;
+	margin-top:3vh;
 }
 .top{
-	height: 30vh;
-	
-}
+	width: 90vw;
+	margin-left:5vw;
+	margin-right: 5vw;
+	margin-bottom:5vh;
+	}
 .bottom{
 	height: 70vh;
 	overflow-y:scroll;
+	margin-bottom: 2vh;
 }
 
 </style>
@@ -30,15 +34,13 @@ visibility:hidden;
 
 {% block content %}
 
-<div id="container"><div class="top" style="display:flex;justify-content:center">
+<div id="container">
 
-<div  style="width:70vw;position:fixed" >
-
+<div class="top" >
 {% include 'filters.html'%}
 </div>
-</div>
 <div class="bottom" style="display:flex;justify-content:center">
-<div class="container" style="width:70vw;height:60vh;bottom:0;margin-bottom:10px;overflow-y:scroll;position:fixed" >
+<div class="container" style="width:80vw;overflow-y:scroll;position:absolute" >
 	{% for ride in rides %}
 	<div class="row announcement" style="align-items:center;background:aliceblue" >
 	 	<div class="col-md-3 img-with-text " style="text-align:center">
