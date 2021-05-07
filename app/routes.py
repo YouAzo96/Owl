@@ -267,6 +267,7 @@ def viewprofile(user_id):
     else:
         return redirect(url_for('index'))
 
+
 @app.route('/admin')
 @login_required
 def admin():
@@ -559,8 +560,26 @@ def cancelride2(ride_id):
     return redirect('profilepage.html#Rides')
 
 
+@app.route('/change_status/<ride_id>', methods=['GET', 'POST'])
+@login_required
+def changestatus(ride_id):
+    if ride_id is None or ride_id=='':
+        return redirect(url_for('index'))
+    elif current_user.is_anonymous:
+        return redirect(url_for('login'))    
 
+    selected_ride = db.session.query(Ride).filter_by(ride_id=ride_id). \
+        filter_by(driver_id=current_user.user_id).first()
 
+    if selected_ride:
+        selected_ride.completed = True
+        db.session.commit()
+
+    else:
+        return redirect(url_for('viewprofile'))
+    return redirect('profilepage.html#Rides')
+
+    
 
 
 
