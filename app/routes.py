@@ -558,9 +558,23 @@ def cancelride2(ride_id):
         return redirect(url_for('viewprofile')) # user cant del record if not a passenger
     return redirect('profilepage.html#Rides')
 
-
-
-
+@app.route('/rate/<driver_id>/<stars>', methods=['GET', 'POST'])
+@login_required
+def rate(driver_id,stars):
+    if driver_id is None or driver_id=='':
+        return redirect(url_for('index'))
+    elif current_user.is_anonymous:
+        return redirect(url_for('login'))
+        
+    driver_to_be_rated = db.session.query(User.user_id).filter_by(user_id = driver_id).first()
+    if driver_to_be_rated is not None: 
+        rating = Rating(writer_id = current_user.user_id, reciver_id=driver_id , description= '',stars=stars)
+        db.session.add(rating)
+        db.session.commit()
+        session['alert']='Thanks for rating your driver!'
+        return redirect(url_for('index'))
+    else:   
+        return redirect(url_for('index'))
 
 
 
