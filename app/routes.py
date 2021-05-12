@@ -130,7 +130,7 @@ def signup():
             u.set_password(form.password.data)
         db.session.add(u)
         db.session.commit()
-        SendToken(u.email)
+        
         return redirect(url_for('login'))
     return render_template('register.html', title='SignUp', form=form)
 
@@ -303,7 +303,7 @@ def scheduler():
         ride = Ride(driver_id=current_user.user_id,from_location=from_location,to_location=to_location,start_time=start_time,end_time=end_time, start_date=start_date, end_date=end_date, max_passengers=max_passengers)
         db.session.add(ride)
         db.session.commit()
-        
+        Notifications(current_user.email,"Your Ride has been scheduled. We Wish You have a safe Journey.") 
         return redirect(url_for('index'))
     return render_template ('scheduler.html' ,form=form, time_error=time_error, date_error=date_error)
 
@@ -338,6 +338,7 @@ def banwithid():
                 stmt =update(User).values(active=(False)).where(User.user_id == form.user_id.data)
                 db.session.execute(stmt)
                 db.session.commit()
+                Notifications(user_to_ban.email,"Your Account has been BANNED. Please Speak with an administrator.")
                 form.user_id.data=''
                 return redirect(url_for('banwithid'))
             else:
@@ -406,6 +407,7 @@ def joinride(ride_id):
     request = Requests(ride_id=ride_id, requester=current_user.user_id)
     db.session.add(request)
     db.session.commit()
+    Notifications(driver[0],"You have a ride Request.")
     return redirect(url_for('viewprofile'))
 
 @app.route('/edit_profile',methods=['GET', 'POST'])
@@ -444,6 +446,7 @@ def change_password():
             if new_password == confirm_password:
                 user.set_password(new_password)
                 db.session.commit()
+                Notifications(user.email,"Your password has beenc changed. If this was not you please contact our administrators immediately.")
                 session['alert']="Password Changed!"
                 return redirect(url_for('index'))
             else:
@@ -487,6 +490,8 @@ def acceptride(ride_id, requester):
         new = Ride_Passengers(ride_id=ride_id, passenger_id=requester)
         db.session.add(new)
         db.session.commit()
+        requestermail = db.session.query(User.email).filter_by(user_id=requester).first()
+        Notifications(requestermail[0],"Your Ride request has been accepted.")
 
     else:
         return redirect(url_for('viewprofile'))
@@ -508,6 +513,8 @@ def rejectride(ride_id, requester):
     if request_delete:
         db.session.delete(request_delete)
         db.session.commit()
+        requestermail = db.session.query(User.email).filter_by(user_id=requester).first()
+        Notifications(requestermail[0],"Your Ride request has been rejected.")
 
     else:
         return redirect(url_for('viewprofile'))
@@ -543,6 +550,9 @@ def cancelride(ride_id): # may need another field in ride called "canceled"
         
         db.session.delete(selected_ride)
         db.session.commit() # delete all records of requests for ride.
+        passenger= db.session.query(Ride_Passengers.passenger_id).filter_by(ride_id=ride_id).first()
+        passengermail = db.session.query(User.email).filter_by(user_id=passenger).first()
+        Notifications(passengermail,"This Ride has been canceled")
 
         
         
@@ -566,6 +576,9 @@ def cancelride2(ride_id):
     
         db.session.delete(selected_ride)
         db.session.commit()
+        driver = db.session.query(Ride.driver_id).filter_by(ride_id=ride_id).first()
+        drivermail = db.session.query(User.email).filter_by(user_id=driver[0]).first()
+        Notifications(drivermail[0],print(current_user.email) +" "+ " has canceled their ride.")
 
     else:
         return redirect(url_for('viewprofile')) # user cant del record if not a passenger
