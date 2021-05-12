@@ -49,7 +49,7 @@ border-radius:5px;
 <div>
 <h3>Inbox</h3>
 </div>
-	<div class="row">
+	<div class="row" style="margin-top:5px;">
 	{%if peer.image %}
 		<img class="col-md-3 "  style="margin-right: -20px;border-radius:50%;height:40px;width:60px"  src="{{url_for('static', filename='images/'+peer.image | default('images/user.png')) }}"/>
 	{%else%}
