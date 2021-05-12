@@ -51,10 +51,10 @@ class AddAnnouncement(FlaskForm):
 class SchedulerForm(FlaskForm):
     to_location =  StringField('To Location', validators= [DataRequired()], render_kw={"placeholder": "To location"})
     from_location = StringField('from Location', validators= [DataRequired()], render_kw={"placeholder": "From Location"})
-    start_date=  DateField('Start Date' , format = '%Y-%m-%d', validators= [DataRequired()]) 
-    end_date=    DateField('End Date' , format = '%Y-%m-%d',validators= [DataRequired()] )
-    start_time=  TimeField ('Start Time',validators= [DataRequired()])
-    end_time=   TimeField ('End Time',validators= [DataRequired()])
+    start_date=  DateField('Meeting Start Date' , format = '%Y-%m-%d', validators= [DataRequired()]) 
+    end_date=    DateField('Meeting End Date' , format = '%Y-%m-%d',validators= [DataRequired()] )
+    start_time=  TimeField ('Meeting Start Time',validators= [DataRequired()])
+    end_time=   TimeField ('Meeting End Time',validators= [DataRequired()])
     max_passengers= IntegerRangeField ('Passengers', render_kw={"min":"1", "max": "7","value":"1"})
     submit = SubmitField('Submit')
 
@@ -62,13 +62,18 @@ class SchedulerForm(FlaskForm):
 class FilterForm(FlaskForm):
     from_location = StringField('From', validators= [DataRequired()], render_kw={"placeholder": "From Location"})
     to_location =  StringField('To', validators= [DataRequired()], render_kw={"placeholder": "To location"})
-    start_date=  DateField('Start' , format = '%Y-%m-%d', validators= [DataRequired()]) 
-    end_date=    DateField('End' , format = '%Y-%m-%d',validators= [DataRequired()] )
-    start_time=  TimeField ('Start',validators= [DataRequired()])
-    end_time=   TimeField ('End',validators= [DataRequired()])
-    interests = StringField('Interests', render_kw={"data-role":"tagsinput"})
+    start_date=  DateField('Waiting Start' , format = '%Y-%m-%d', validators= [DataRequired()]) 
+    end_date=    DateField('Waiting End' , format = '%Y-%m-%d',validators= [DataRequired()] )
+    start_time=  TimeField ('Waiting Start',validators= [DataRequired()])
+    end_time=   TimeField ('Waiting End',validators= [DataRequired()])
+    major_id= SelectField("Driver's Major", validators= [DataRequired()], render_kw={"placeholder": "Major","style":"width:100%"})
     submit = SubmitField('Filter',render_kw={"id":"submit-btn"})
 
+    def __init__(self, *args,**kwargs):
+             super(FilterForm, self).__init__(*args,**kwargs)
+            
+             self.major_id.choices=[(c.major_id,c.major_name) for c in Major.query.all()]
+             self.major_id.choices.insert(0,['',''])
 class EditProfileForm(FlaskForm):
     image= FileField(render_kw={"id":"file-input"})
     major_id= SelectField('Major', validators= [DataRequired()], render_kw={"onchange":"changeSelected()","placeholder": "Major","style":"width:100%"})

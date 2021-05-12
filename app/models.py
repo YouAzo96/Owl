@@ -126,3 +126,22 @@ class Reports (db.Model):
     reporter_id = db.Column(db.Integer ,sqlalchemy.ForeignKey('user.user_id'))
     description = db.Column(db.String(100))
     status = db.Column(db.Integer)
+
+class Conversations(db.Model):
+    __tablename__='conversations'
+    conversation_id = db.Column(db.String(100), primary_key=True)
+    first_peer = db.Column (db.Integer, sqlalchemy.ForeignKey ('user.user_id'), nullable=False)
+    second_peer= db.Column (db.Integer, sqlalchemy.ForeignKey ('user.user_id'), nullable=False)
+    def __init__(self, conversation_id, first_peer, second_peer):
+        self.conversation_id = conversation_id
+        self.first_peer = first_peer
+        self.second_peer = second_peer
+
+class Messages(db.Model):
+    __tablename__='messages'
+    message_id = db.Column(db.Integer, primary_key=True)
+    conversation_id = db.Column(db.String(100),sqlalchemy.ForeignKey('conversations.conversation_id'))
+    sender_id = db.Column (db.Integer, sqlalchemy.ForeignKey ('user.user_id'), nullable=False)
+    message = db.Column(db.String(100))
+    timestamp = db.Column(db.DateTime,nullable=False,default=datetime.now())
+    
