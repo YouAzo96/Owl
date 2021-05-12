@@ -1,18 +1,21 @@
 from app import app
 from flask import render_template, redirect, url_for, flash,request,session
-from flask_login import login_user, logout_user, login_required, current_user,LoginManager
+from flask_login import login_user, logout_user, login_required, current_user, LoginManager
 from app.forms import RegistrationForm,  LoginForm,BanForm,AddAnnouncement, SchedulerForm,ChangePasswordForm,EditProfileForm,FilterForm
 from app.email import send_email
 from app.token import generate_confirmation_token, confirm_token
 from app import db
-from sqlalchemy import update, func
+from sqlalchemy import update, func,or_, and_
 from werkzeug.utils import secure_filename
 from werkzeug import *
-from app.models import User, Major, User_Intrest, Rating, Intrest,Reports,Announcement, Requests, Ride, Ride_Passengers
+from app.models import User, Major, User_Intrest, Rating, Intrest,Reports,Announcement, Requests, Ride, Ride_Passengers,Messages,Conversations
 import sys 
 import os
+import json
+import hashlib
 from sqlalchemy_filters import apply_filters
 import pdb, pprint
+from flask_socketio import SocketIO
 
 @app.route('/', methods=['GET','POST'])
 def index():
@@ -207,6 +210,8 @@ def viewprofile(user_id):
         
     if current_user.is_authenticated and user_id is None:
             featuresShow = True
+    elif  current_user.is_authenticated and user_id is not None and user_id == current_user.user_id:
+            featuresShow = True 
     else:
             featuresShow = False
     if user is not None:
@@ -235,18 +240,9 @@ def viewprofile(user_id):
         list1 = []
         for x in ids:
             list1.append(x.ride_id)
-        print(list1, file=sys.stderr)
         request_join = db.session.query(User, Requests, Ride).select_from(User). \
                 join(Requests, User.user_id == Requests.requester).join(Ride, Requests.ride_id == Ride.ride_id). \
                     filter(Requests.ride_id.in_(list1)).all()
-        
-
-        
-
-        
-            
-
-
         
         #request_join = db.session.query(User,Ride,Requests).select_from(User).join(Ride).join(Requests). \
          #   filter(Ride.driver_id == current_user.user_id).all()
@@ -362,25 +358,42 @@ def ridebrowser():
     filled=[]
     if request.method=="POST":
         for val in request.form :
-            if request.form.get(val) !='':
+            if val == "major_id" and request.form.get(val) is None:
+                break
+            elif request.form.get(val) != '':
                 filled.append(val)
-    rides = db.session.query(Ride).filter(Ride.driver_id != user.user_id).\
+                
+    print(filled, file=sys.stderr)
+    rides = db.session.query(Ride,User,Major)\
+                            .select_from(Ride).join(User).join(Major).filter(Ride.driver_id != user.user_id).\
                                 filter(Ride.completed==False).order_by(Ride.start_date.desc())   
-    filter_spec=[]
+   
+    filter_spec =[]
     if filled:
         del filled[0]
         del filled[len(filled)-1]
         for att in filled:
-            filter_spec.append({'field':att,'op':'==','value':request.form.get(att)})    
-        rides = apply_filters(rides,filter_spec).all()
-    else: 
-        rides = rides.all()
+            if att == "major_id":
+                filter_spec.append({'model':'Major','field':att,'op':'==','value':request.form.get(att)}) 
+            else:       
+                filter_spec.append({'model':'Ride','field':att,'op':'==','value':request.form.get(att)})    
+        rides = apply_filters(rides,filter_spec)
+
+    rides = rides.all()
+    
     num_of_passengers = db.session.query(Ride_Passengers.ride_id, func.count(Ride_Passengers.ride_id).label('count')).group_by(Ride_Passengers.ride_id).all()
-    drivers_ids =[]
-    for ride in rides:
-        drivers_ids.append(ride.driver_id)
-    drivers = db.session.query(User.user_id,User.first_name, User.last_name, User.image).filter(User.user_id.in_(drivers_ids)).all()
-    return render_template('rides.html',form=form,user=user,drivers = drivers, rides = rides, num_of_passengers = num_of_passengers)
+
+
+  #  drivers_ids =[]
+  #  for ride in rides:
+  #      drivers_ids.append(ride.driver_id)
+  #  drivers = db.session.query(User.user_id,User.first_name, User.last_name, User.image,Major.major_name).join(Major).filter(User.user_id.in_(drivers_ids))
+  #  if filter_spec1:
+  #      drivers= apply_filters(drivers,filter_spec1).all()
+  #  else:
+  #      drivers= drivers.all() 
+    
+    return render_template('rides.html',form=form,user=user, rides = rides, num_of_passengers = num_of_passengers)
 
 @app.route('/join/<ride_id>', methods=['GET','POST'])
 @login_required
@@ -558,17 +571,85 @@ def cancelride2(ride_id):
         return redirect(url_for('viewprofile')) # user cant del record if not a passenger
     return redirect('profilepage.html#Rides')
 
+socketio = SocketIO(app)
+
+@app.route('/launch/<peer_id>')
+@login_required
+def launch_session(peer_id):
+    if peer_id is None or peer_id=='':
+        return redirect(url_for('viewprofile'))
+    elif current_user.is_anonymous:
+        return redirect(url_for('login'))
+    conv_id = get_or_add_conversation(str(current_user.user_id),peer_id)
+    socketio.run(app, debug=True)
+    return redirect(url_for('sessions',conversation_id=conv_id))
+
+@app.route('/launch/')
+@app.route('/inbox/')
+@login_required
+def returntohome():
+    return redirect(url_for('index'))
+                
+@app.route('/inbox/<conversation_id>', methods=['POST','GET'])
+@login_required
+def sessions(conversation_id):
+    if conversation_id is None or conversation_id =='':
+            return redirect(url_for('viewprofile'))
+    elif current_user.is_anonymous:
+            return redirect(url_for('login'))
+    check_conv = db.session.query(Conversations).filter_by(conversation_id=conversation_id).first()
+    if(check_conv is None):
+            return redirect(url_for('viewprofile'))
+    else:
+        sender_id = ''
+        
+        if check_conv.first_peer == current_user.user_id:
+            sender_id = check_conv.second_peer
+        else: 
+            sender_id = check_conv.first_peer
+        print(sender_id, file=sys.stderr)  
+        sender = db.session.query(User.first_name, User.image).filter_by(user_id = sender_id).first()
+    prev_msgs = db.session.query(User.first_name.label('sender'),\
+                                 Messages.message,Messages.timestamp,Messages.sender_id).select_from(Messages).\
+                                 join(User).filter(Messages.conversation_id==conversation_id).\
+                                 order_by(Messages.timestamp.asc()).all()
+    print("sender:", file=sys.stderr)  
+    print(sender.first_name, file=sys.stderr)  
+
+    return render_template('session.html', user=current_user,peer=sender, prev_msgs = prev_msgs,conversation_id=conversation_id)
+
+@socketio.on('my event')
+def handle_my_custom_event(Myjson, methods=['GET', 'POST']):   
+    new_message = Messages(conversation_id = Myjson['conv_id'],\
+                             sender_id = Myjson['sender'] ,\
+                             message= Myjson['message'] ,\
+                             timestamp=Myjson['msg_time'])
+    db.session.add(new_message)
+    db.session.commit()
+    socketio.emit('my response', Myjson)
 
 
 
+def get_or_add_conversation(sender,receiver):
+    conv_id = db.session.query(Conversations.conversation_id).\
+                filter(or_(and_(Conversations.first_peer == receiver, Conversations.second_peer == sender),\
+                 and_(Conversations.first_peer == sender, Conversations.second_peer == receiver))).first()
+    if conv_id is None:
+        conv_id = generate_conversation_id(sender,receiver)
+        new_conv = Conversations(conv_id,sender,receiver)
+        db.session.add(new_conv)
+        db.session.commit()
+        return conv_id
+    else:
+        return conv_id[0]             
 
 
 
-
-
-
-
-
+def generate_conversation_id(sender,receiver):
+    m = hashlib.sha256()
+    combination = sender + receiver
+    m.update(str.encode(combination))
+    return str(m.hexdigest())
 
 
 

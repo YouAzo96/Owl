@@ -41,21 +41,21 @@ visibility:hidden;
 </div>
 <div class="bottom" style="display:flex;justify-content:center">
 <div class="container" style="width:80vw;overflow-y:scroll;position:absolute" >
-	{% for ride in rides %}
+	{% for ride,user,major in rides %}
 	<div class="row announcement" style="align-items:center;background:aliceblue" >
 	 	<div class="col-md-3 img-with-text " style="text-align:center">
-	 			{% for driver in drivers %}
-	 			{% if driver.user_id == ride.driver_id %}
-	 					 			{% if driver.image %}
+	 		
+	 					 			{% if user.image %}
 
-					<img src="{{ url_for('static', filename='images/'+driver.image | default('user.png')) }}"/>
+					<img src="{{ url_for('static', filename='images/'+ride.image | default('user.png')) }}"/>
 							{%else%}
 					<img src="{{ url_for('static', filename='images/user.png') }}"/>
 
 							{%endif%}
-          		    <p>{{driver.first_name +' '+ driver.last_name}}</p>
-          		{% endif %}
-            	{% endfor %}
+          		    <p>{{user.first_name +' '+ user.last_name}}</p>
+          		    <p>{{'Major: '+ major.major_name}}</p>
+    
+            
      	</div>
      
     	<div class="col-md-7">
@@ -75,10 +75,10 @@ visibility:hidden;
         		</div>
         		<div  class="col-md-6">
         			<div class="row">
-						<p class="col-md-4">Departure Time: </p>
+						<p class="col-md-4">Departure, </p>
 						<p class="col-md-8">
-							<span style="float:left;clear:left">From: {{ride.start_date|string +'-'+ ride.start_time|string}}</span>
-							<span style="float:left;clear:left">To: {{ride.end_date|string +'-'+ ride.end_time|string}}</span>
+							<span style="float:left;clear:left">Between: {{ride.start_date|string +'|'+ ride.start_time|string}}</span>
+							<span style="float:left;clear:left">And: {{ride.end_date|string +'|'+ ride.end_time|string}}</span>
 						</p>
 					</div>
         		</div>

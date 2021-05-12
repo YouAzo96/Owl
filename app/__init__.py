@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 import os
 from sqlalchemy import create_engine
 from sqlalchemy_utils import database_exists, create_database
-
+from flask_socketio import SocketIO
 
 # force loading of environment variables
 load_dotenv('.flaskenv')

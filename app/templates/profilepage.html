@@ -170,6 +170,10 @@
             <div class="col-md-2">
                 <a href="/edit_profile" class="profile-edit-btn" name="btnAddMore">Edit Profile</a>
             </div>
+            {% else %}
+            <div class="col-md-2">
+                 <a href="/launch/{{ user_profile.user_id }}" class="btn-lg btn btn-primary" name="btnAddMore">Chat</a>
+            </div>
             {%endif%}
         </div>
         <div class="row">
