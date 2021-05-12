@@ -130,7 +130,8 @@ def signup():
             u.set_password(form.password.data)
         db.session.add(u)
         db.session.commit()
-        
+
+        SendToken(u.email)
         return redirect(url_for('login'))
     return render_template('register.html', title='SignUp', form=form)
 
@@ -407,7 +408,8 @@ def joinride(ride_id):
     request = Requests(ride_id=ride_id, requester=current_user.user_id)
     db.session.add(request)
     db.session.commit()
-    Notifications(driver[0],"You have a ride Request.")
+
+    # Notifications([0],"You have a ride Request.")
     return redirect(url_for('viewprofile'))
 
 @app.route('/edit_profile',methods=['GET', 'POST'])
