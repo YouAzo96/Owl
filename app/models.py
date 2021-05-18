@@ -78,6 +78,7 @@ class Announcement(db.Model):
 class Rating(db.Model):
     __tablename__='rating'
     rating_id = db.Column(db.Integer, primary_key=True)
+    ride_id = db.Column (db.Integer, sqlalchemy.ForeignKey('ride.ride_id'),nullable=False)
     writer_id = db.Column (db.Integer, sqlalchemy.ForeignKey('user.user_id'),nullable=False)
     reciver_id = db.Column (db.Integer, sqlalchemy.ForeignKey('user.user_id'),nullable=False)
     description = db.Column(db.String (100))

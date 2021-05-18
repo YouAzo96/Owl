@@ -229,7 +229,7 @@ def viewprofile(user_id):
             filter_by(completed = True).all()
         passenger_history = db.session.query(Ride, Ride_Passengers).filter_by(completed = True). \
             join(Ride_Passengers).filter_by(passenger_id=user.user_id).all()
-        
+        ride_history_ratings = db.session.query(Rating).all()
         driver_active = db.session.query(Ride).filter_by(driver_id=user.user_id). \
             filter_by(completed = False).all()
         passenger_active = db.session.query(Ride, Ride_Passengers).filter_by(completed = False). \
@@ -258,8 +258,10 @@ def viewprofile(user_id):
             overall = total /len(ratings)
         else:
             overall = "."
+        if not overall==".":
+            overall = "{:.1f}".format(overall)
         return render_template('profilepage.html',isAdmin = is_admin(),isMyProfile=featuresShow,user=user,user_profile=user_profile,rating=overall,major=major,interests=interestNames, \
-            driver_history=driver_history, passenger_history=passenger_history, driver_active=driver_active, passenger_active=passenger_active, \
+            driver_history=driver_history, passenger_history=passenger_history,rides_ratings=ride_history_ratings, driver_active=driver_active, passenger_active=passenger_active, \
                 request_join=request_join, request_sent=request_sent)
     else:
         return redirect(url_for('index'))
@@ -580,7 +582,7 @@ def cancelride2(ride_id):
         db.session.commit()
         driver = db.session.query(Ride.driver_id).filter_by(ride_id=ride_id).first()
         drivermail = db.session.query(User.email).filter_by(user_id=driver[0]).first()
-        Notifications(drivermail[0],print(current_user.email) +" "+ " has canceled their ride.")
+        Notifications(drivermail[0], current_user.first_name +" has canceled their ride with you as a passenger.")
 
     else:
         return redirect(url_for('viewprofile')) # user cant del record if not a passenger
@@ -692,17 +694,22 @@ def generate_conversation_id(sender,receiver):
     return str(m.hexdigest())
 
 
-@app.route('/rate/<driver_id>/<stars>', methods=['GET', 'POST'])
+@app.route('/rate/<ride_id>/<stars>', methods=['GET', 'POST'])
 @login_required
-def rate(driver_id,stars):
-    if driver_id is None or driver_id=='':
+def rate(ride_id,stars):
+    if  ride_id is None or ride_id=='' or stars is None or stars=='':
         return redirect(url_for('index'))
     elif current_user.is_anonymous:
         return redirect(url_for('login'))
 
-    driver_to_be_rated = db.session.query(User.user_id).filter_by(user_id = driver_id).first()
-    if driver_to_be_rated is not None: 
-        rating = Rating(writer_id = current_user.user_id, reciver_id=driver_id , description= '',stars=stars)
+    ride_to_be_rated = db.session.query(Ride).filter_by(ride_id = ride_id).first()
+    if ride_to_be_rated is not None: 
+        isRated = db.session.query(Rating).filter_by(writer_id = current_user.user_id,ride_id = ride_id,reciver_id=ride_to_be_rated.driver_id).first()
+        if isRated:
+            isRated.stars = stars
+            db.session.commit()
+            return redirect(url_for('viewprofile'))
+        rating = Rating(writer_id = current_user.user_id,ride_id = ride_id, reciver_id=ride_to_be_rated.driver_id , description= '',stars=stars)
         db.session.add(rating)
         db.session.commit()
         session['alert']='Thanks for rating your driver!'

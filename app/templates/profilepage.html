@@ -1,11 +1,10 @@
+
 <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
 <style>
-    body {
-        background: -webkit-linear-gradient(left, #3931af, #00c6ff);
-    }
+   
 .star-input {
   display: none;
 }
@@ -128,6 +127,65 @@
         color: #0062cc;
     }
 
+
+
+    /*-----------Rating Form --------------*/
+.rating {
+    display: inline-block;
+}
+
+.rating:not(:checked) > input {
+    display:none;
+}
+
+.rating:not(:checked) > label {
+    float: right;
+    width: 28px;
+    padding: 0 4px;
+    overflow: hidden;
+    white-space: nowrap;
+    cursor: pointer;
+    font-size: 200%;
+    line-height: 1.2;
+    color: #ddd;
+    filter: saturate(0);
+    -webkit-filter: saturate(0);
+    -moz-filter: saturate(0);
+    -o-filter: saturate(0);
+    
+}
+
+.rating:not(:checked) > label:before {
+    content: url("http://i.imgur.com/1dT6Fai.png") ' ';
+}
+
+.rating > input:checked ~ label {
+    filter: saturate(1);
+    -webkit-filter: saturate(1);
+	-moz-filter: saturate(1);
+    -o-filter: saturate(1);
+}
+
+.rating:not(:checked) > label:hover,
+.rating:not(:checked) > label:hover ~ label {
+    filter: hue-rotate(-50deg);
+    -webkit-filter: hue-rotate(-50deg);
+	-moz-filter: hue-rotate(-50deg);
+    -o-filter:hue-rotate(-50deg);
+    
+}
+
+.rating > input:checked + label:hover,
+.rating > input:checked + label:hover ~ label,
+.rating > input:checked ~ label:hover,
+.rating > input:checked ~ label:hover ~ label,
+.rating > label:hover ~ input:checked ~ label {
+    filter: hue-rotate(-50deg);
+    -webkit-filter: hue-rotate(-50deg);
+	-moz-filter: hue-rotate(-50deg);
+    -o-filter:hue-rotate(-50deg);
+	
+}
 
 </style>
 {% include 'navbar.html' %}
@@ -330,25 +388,20 @@
 						<p>End Time: {{ride.end_time}}</p>
 						<p>Start Date: {{ride.start_date}}</p>
 						<p>End Date: {{ride.end_date}}</p>
-						<p><a onclick="showForm()"><u>Rate!</u></a></p>
+						<p><a onclick="showForm({{ride.ride_id}})"><u>Rate!</u></a></p>
 						
-						<div id="rating_form" style="display:none">
-						<form action="" method="post" class="row">
-				
-					<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
-					<form>
-					<input type="text" name="ride_id" value="{{ride.ride_id}}" hidden >
-					<input type="radio" class="star-input" name="rating" id="star-1" value="1">
-					<label for="star-1" class="star"><i class="fas fa-star"></i></label>
-					<input type="radio" class="star-input" name="rating" id="star-2" value="2">
-					<label for="star-2" class="star"><i class="fas fa-star"></i></label>
-					<input type="radio" class="star-input" name="rating" id="star-3" value="3">
-					<label for="star-3" class="star"><i class="fas fa-star"></i></label>
-					<input type="radio" class="star-input" name="rating" id="star-4" value="4">
-					<label for="star-4" class="star"><i class="fas fa-star"></i></label>
-					<input type="radio" class="star-input" name="rating" id="star-5" value="5" checked>
-					<label for="star-5" class="star"><i class="fas fa-star"></i></label>
-					<button class="btn btn-primary" type="submit">Send</button>
+						<div class="row" id="rating_form_{{ride.ride_id}}"  style="display:none">
+						<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+						<form action="" method="post" >
+						<!--we can add conditional statments for rating value to check the correct value of previous rating-->
+					<div class="rating col-md-10 col-8 col-lg-8">
+						<input type="radio" id="star5" name="rating" value="5"><label for="star5" title="Great">5 stars</label>
+						<input type="radio" id="star4" name="rating" value="4"><label for="star4" title="Good">4 stars</label>
+						<input type="radio" id="star3" name="rating" value="3"><label for="star3" title="Okay">3 stars</label>
+						<input type="radio" id="star2" name="rating" value="2"><label for="star2" title="Bad">2 stars</label>
+						<input type="radio" id="star1" name="rating" value="1"><label for="star1" title="Very Bad">1 star</label>
+												</div>
+					<button class="btn btn-primary col-4 col-lg-4 col-md-2" type="submit">Send</button>
 					</form>
 					
 					
@@ -360,13 +413,14 @@
 					</div> <!-- end row div -->
                     </div> <!-- end history -->
 				<script>
-						const form = document.querySelector('form');
-						form.addEventListener('submit', event => {
+				document.querySelectorAll('form').forEach(item => {
+						item.addEventListener('submit', event => {
 						  const formData = new FormData(event.target);
 						  const rating = formData.get('rating');
 						  const ride_id = formData.get('ride_id');
-						  window.location.href='/rate/'+ride_id+'/'+rating;
+						  window.location.assign('/rate/'+ride_id+'/'+rating);
 						  event.preventDefault();
+						})
 						});
 						
 						
@@ -422,8 +476,8 @@
  <script defer src="https://use.fontawesome.com/releases/v5.15.1/js/all.js"></script>
  <script defer src="https://use.fontawesome.com/releases/v5.15.1/js/v4-shims.js"></script>
 <script>
-function showForm() {
-  var x = document.getElementById("rating_form");
+function showForm(id) {
+  var x = document.getElementById("rating_form_"+ id);
   if (x.style.display === "none") {
     x.style.display = "block";
   } else {
