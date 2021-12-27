@@ -1,4 +1,4 @@
-# TheNerds_prod
+# OWLPOOL - Carpooling webapp. 
 Admin account: youssef@owl.edu | pass: 1234
 You can create your own account (as a user with southern email) to check the email verification features...etc
 
