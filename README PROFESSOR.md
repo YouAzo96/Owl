@@ -1,9 +1,6 @@
 # TheNerds_prod
 Admin account: youssef@owl.edu | pass: 1234
-You can create your own account (as a user with southern email) to check the email verification features...etc or you can use this user email: 
-youssef.azougagh96@gmail.com | pass: 4321
-
-Tests Account (if you want to ban them): ID: 6 | Elvis , ID:8 | BOB 
+You can create your own account (as a user with southern email) to check the email verification features...etc
 
 Car Pool main steps: 
   -Schedule a ride (drop down next to your profile name) 
